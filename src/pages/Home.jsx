@@ -3,25 +3,32 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Star, Calendar } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
 export default function Home() {
   const [articles, setArticles] = useState([]);
   const [filter, setFilter] = useState('todos');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+ useEffect(() => {
     axios.get(`${API_URL}/articles/`)
       .then(res => {
-        setArticles(res.data);
+        // Blindagem: aceita tanto array direto [...] quanto formato paginado { results: [...] }
+        const data = Array.isArray(res.data) 
+          ? res.data 
+          : (res.data?.results || []);
+        
+        setArticles(data);
         setLoading(false);
       })
       .catch(err => {
         console.error("Erro ao carregar artigos:", err);
+        setArticles([]); // Garante que continue sendo uma lista vazia
         setLoading(false);
       });
   }, []);
 
+  const safeArtcles = Array.isArray(articles) ? articles : [];
   const filteredArticles = filter === 'todos' 
     ? articles 
     : articles.filter(a => a.category === filter);
