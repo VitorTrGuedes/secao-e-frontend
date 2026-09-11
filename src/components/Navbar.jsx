@@ -9,11 +9,13 @@ export default function Navbar(){
 
                 {/* LOGO */}
                 <Link to="/" className="flex items-center gap-2 group">
+                    
+                    <span className="text-xl font-bold tracking-wider text-white">
+                        SEÇÃO 
+                    </span>
+
                     <span className="bg-secao-red text-white font-black text-xl px-2 py-1 rounded group-hover:scale-105 transition-transform">
                         E
-                    </span>
-                    <span className="text-xl font-bold tracking-wider text-white">
-                        SEÇÃO <span className="text-secao-red">E</span>
                     </span>
                 </Link>
 

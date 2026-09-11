@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Star, Send, MessageSquare, User, Calendar, ArrowLeft } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
 export default function ArticleDetail() {
   const { slug } = useParams();
@@ -21,6 +21,7 @@ export default function ArticleDetail() {
       })
       .catch(err => {
         console.error("Erro ao carregar o post:", err);
+        setArticle(null);
         setLoading(false);
       });
   };
@@ -31,6 +32,7 @@ export default function ArticleDetail() {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
+    if (!article) return;
     try {
       await axios.post(`${API_URL}/comments/`, {
         article: article.id,
@@ -40,24 +42,27 @@ export default function ArticleDetail() {
       setMsg('Sua opinião foi enviada com sucesso!');
       setAuthorName('');
       setOpinion('');
-      loadArticle(); // Atualiza a lista de comentários instantaneamente
+      loadArticle();
     } catch (err) {
       setMsg('Erro ao enviar sua opinião. Tente novamente.');
     }
   };
 
+  // 🛡️ BLINDAGEM: Se comments não existir, assume uma lista vazia []
+  const comments = Array.isArray(article?.comments) ? article.comments : [];
+
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-20 text-center text-slate-400 font-medium">
-        Carregando análise da Seção E...
-      </div>
+      <main className="max-w-4xl mx-auto px-4 py-20 text-center">
+        <p className="text-slate-400 font-medium text-lg animate-pulse">Carregando análise da Seção E...</p>
+      </main>
     );
   }
 
   if (!article) {
     return (
       <main className="max-w-4xl mx-auto px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold text-white mb-4">Post não encontrado</h1>
+        <h1 className="text-2xl font-bold text-white mb-4">Publicação não encontrada</h1>
         <Link to="/" className="inline-flex items-center gap-2 text-secao-purple hover:underline">
           <ArrowLeft size={16} /> Voltar para o início
         </Link>
@@ -77,8 +82,6 @@ export default function ArticleDetail() {
 
       {/* ARTIGO PRINCIPAL */}
       <article className="bg-secao-card border border-secao-border rounded-2xl p-6 md:p-10 shadow-2xl mb-12">
-        
-        {/* CAPA DO ARTIGO (<figure>) */}
         {article.image_url && (
           <figure className="relative -mx-6 -mt-6 md:-mx-10 md:-mt-10 mb-8 overflow-hidden rounded-t-2xl">
             <img 
@@ -89,7 +92,6 @@ export default function ArticleDetail() {
           </figure>
         )}
 
-        {/* CABEÇALHO DO ARTIGO (<header>) */}
         <header className="mb-8 border-b border-secao-border pb-6">
           <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
             <div className="flex items-center gap-3">
@@ -113,25 +115,24 @@ export default function ArticleDetail() {
           </h1>
         </header>
 
-        {/* CORPO DO TEXTO DA ANÁLISE */}
         <div className="prose prose-invert max-w-none text-slate-300 text-lg leading-relaxed whitespace-pre-line">
           {article.content}
         </div>
-
       </article>
 
-      {/* SEÇÃO DE COMENTÁRIOS E OPINIÕES (<section>) */}
+      {/* SEÇÃO DE COMENTÁRIOS */}
       <section className="bg-secao-card border border-secao-border rounded-2xl p-6 md:p-8 shadow-xl">
         <header className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
           <h2 className="text-2xl font-bold flex items-center gap-2 text-secao-purple">
             <MessageSquare /> Opiniões da Comunidade
           </h2>
+          {/* ✅ AQUI ESTAVA O ERRO: Agora usamos a variável protegida 'comments' */}
           <span className="text-xs font-bold bg-slate-900 px-3 py-1 rounded-full text-slate-400 border border-slate-800">
-            {article.comments.length} {article.comments.length === 1 ? 'opinião' : 'opiniões'}
+            {comments.length} {comments.length === 1 ? 'opinião' : 'opiniões'}
           </span>
         </header>
 
-        {/* FORMULÁRIO DE ENVIO (<form>) */}
+        {/* FORMULÁRIO DE ENVIO */}
         <form onSubmit={handleCommentSubmit} className="space-y-4 mb-10 bg-slate-950/70 p-5 rounded-xl border border-slate-800">
           <h3 className="font-semibold text-slate-200 text-sm">
             O que você achou desta obra? Deixe sua visão abaixo:
@@ -173,14 +174,14 @@ export default function ArticleDetail() {
           </button>
         </form>
 
-        {/* LISTA SEMÂNTICA DE COMENTÁRIOS (<ul> e <li>) */}
+        {/* LISTA DE COMENTÁRIOS */}
         <ul className="space-y-4">
-          {article.comments.length === 0 ? (
+          {comments.length === 0 ? (
             <li className="text-slate-500 italic text-center py-6 bg-slate-950/30 rounded-xl border border-slate-900">
               Nenhum leitor opinou ainda. Seja o primeiro a deixar sua marca!
             </li>
           ) : (
-            article.comments.map(c => (
+            comments.map(c => (
               <li key={c.id} className="p-4 bg-slate-950/50 rounded-xl border border-slate-800/80">
                 <header className="flex justify-between items-center mb-2">
                   <strong className="font-bold text-secao-purple flex items-center gap-1.5 text-sm">

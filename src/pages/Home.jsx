@@ -45,7 +45,7 @@ export default function Home() {
           Cinema, Animes & <span className="text-secao-red">Séries</span>
         </h1>
         <p className="text-slate-400 text-lg">
-          Notícias atualizadas, opiniões do autor e espaço aberto para a comunidade opinar!
+          Notícias, opiniões de quem não e critico de cinema e espaço aberto para a comunidade opinar!
         </p>
 
         {/* FILTROS POR CATEGORIA - Usando <nav> */}
