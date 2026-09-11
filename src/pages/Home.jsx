@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Star, Calendar } from 'lucide-react';
+import { Star, Calendar, Search, X } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
 export default function Home() {
   const [articles, setArticles] = useState([]);
   const [filter, setFilter] = useState('todos');
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
- useEffect(() => {
+  useEffect(() => {
     axios.get(`${API_URL}/articles/`)
       .then(res => {
-        // Blindagem: aceita tanto array direto [...] quanto formato paginado { results: [...] }
         const data = Array.isArray(res.data) 
           ? res.data 
           : (res.data?.results || []);
@@ -23,62 +23,130 @@ export default function Home() {
       })
       .catch(err => {
         console.error("Erro ao carregar artigos:", err);
-        setArticles([]); // Garante que continue sendo uma lista vazia
+        setArticles([]);
         setLoading(false);
       });
   }, []);
 
-  const safeArtcles = Array.isArray(articles) ? articles : [];
-  const filteredArticles = filter === 'todos' 
-    ? articles 
-    : articles.filter(a => a.category === filter);
+  // 🔍 LÓGICA DE FILTRO COMBINADO (Categoria + Texto de Busca)
+  const safeArticles = Array.isArray(articles) ? articles : [];
+  
+  const filteredArticles = safeArticles.filter(article => {
+    // 1. Valida a Categoria
+    const matchesCategory = filter === 'todos' || article.category === filter;
+
+    // 2. Valida o Texto digitado (busca no Título e no Conteúdo, ignorando maiúsculas)
+    const term = searchTerm.toLowerCase().trim();
+    const matchesSearch = term === '' || 
+      article.title?.toLowerCase().includes(term) ||
+      article.content?.toLowerCase().includes(term);
+
+    // Só exibe se bater os dois critérios juntos
+    return matchesCategory && matchesSearch;
+  });
 
   if (loading) {
-    return <p className="text-center py-20 text-slate-400 font-semibold">Carregando portal Seção E...</p>;
+    return (
+      <main className="max-w-6xl mx-auto px-4 py-20 text-center">
+        <p className="text-slate-400 font-semibold text-lg animate-pulse">Carregando portal Seção E...</p>
+      </main>
+    );
   }
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-8">
-      {/* HERO BANNER  */}
+      {/* CABEÇALHO / HERO BANNER */}
       <header className="mb-10 text-center md:text-left border-b border-secao-border pb-8">
         <h1 className="text-4xl md:text-5xl font-extrabold mb-3 text-white">
           Cinema, Animes & <span className="text-secao-red">Séries</span>
         </h1>
-        <p className="text-slate-400 text-lg">
-          Notícias, opiniões de quem não e critico de cinema e espaço aberto para a comunidade opinar!
+        <p className="text-slate-400 text-lg mb-8">
+          Notícias atualizadas, opiniões do autor e espaço aberto para a comunidade opinar!
         </p>
 
-        {/* FILTROS POR CATEGORIA - Usando <nav> */}
-        <nav aria-label="Filtros de categoria" className="flex flex-wrap justify-center md:justify-start gap-2 mt-6">
-          {['todos', 'cinema', 'anime', 'serie'].map(cat => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`px-4 py-2 rounded-full text-xs font-bold uppercase transition ${
-                filter === cat 
-                  ? 'bg-secao-red text-white shadow-md' 
-                  : 'bg-secao-card hover:bg-slate-700 text-slate-300'
-              }`}
-            >
-              {cat === 'todos' ? '🔥 Todos' : cat}
-            </button>
-          ))}
-        </nav>
+        {/* 🔎 BARRA DE PESQUISA E FILTROS */}
+        <section className="flex flex-col md:flex-row gap-4 md:gap-6 justify-start items-center">
+          
+          {/* CAMPO DE PESQUISA */}
+          <div className="relative w-full md:w-96">
+            <label htmlFor="search-input" className="sr-only">Pesquisar notícias e críticas</label>
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+            
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Buscar por título ou assunto..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-10 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-secao-red transition text-sm shadow-inner"
+            />
+
+            {/* Botão X para limpar busca rápido */}
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition"
+                title="Limpar busca"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+
+          {/* BOTÕES DE CATEGORIA */}
+          <nav aria-label="Filtros de categoria" className="flex flex-wrap justify-center gap-2 w-full md:w-auto">
+            {['todos', 'cinema', 'anime', 'serie'].map(cat => (
+              <button
+                key={cat}
+                onClick={() => setFilter(cat)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition ${
+                  filter === cat 
+                    ? 'bg-secao-red text-white shadow-lg shadow-rose-950/40 scale-105' 
+                    : 'bg-secao-card hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800'
+                }`}
+              >
+                {cat === 'todos' ? '🔥 Todos' : cat}
+              </button>
+            ))}
+          </nav>
+
+        </section>
+
+        {/* CONTADOR DE RESULTADOS */}
+        {searchTerm && (
+          <p className="text-xs text-slate-400 mt-4">
+            Mostrando resultados para <span className="text-secao-red font-bold">"{searchTerm}"</span> 
+            {filter !== 'todos' && <span> na categoria <strong className="uppercase text-white">{filter}</strong></span>}
+            : {filteredArticles.length} {filteredArticles.length === 1 ? 'publicação encontrada' : 'publicações encontradas'}.
+          </p>
+        )}
       </header>
 
-      {/* GRID DE CARDS  */}
+      {/* GRID DE CARDS */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredArticles.length === 0 ? (
-          <p className="text-slate-500 italic col-span-full text-center py-10">Nenhum post encontrado nesta categoria.</p>
+          <div className="col-span-full text-center py-16 bg-secao-card/30 rounded-2xl border border-slate-800/80 p-8">
+            <p className="text-slate-400 text-lg font-semibold mb-1">Nenhum post encontrado</p>
+            <p className="text-slate-500 text-sm">
+              Tente pesquisar por outros termos ou trocar a categoria selecionada.
+            </p>
+            {searchTerm && (
+              <button
+                onClick={() => { setSearchTerm(''); setFilter('todos'); }}
+                className="mt-4 text-xs font-bold uppercase text-secao-purple hover:underline"
+              >
+                Limpar todos os filtros
+              </button>
+            )}
+          </div>
         ) : (
           filteredArticles.map(article => (
-            /* CADA CARD AGORA É UM <article> SEMÂNTICO */
             <article 
               key={article.id} 
               className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-red transition group flex flex-col justify-between"
             >
               <Link to={`/artigo/${article.slug}`}>
-                {/* CONTAINER DA IMAGEM - Usando <figure> */}
                 <figure className="relative h-48 bg-slate-900 overflow-hidden">
                   {article.image_url ? (
                     <img 
@@ -105,7 +173,7 @@ export default function Home() {
 
                 <div className="p-5">
                   <span className="text-xs font-semibold text-secao-purple uppercase tracking-wider">
-                    {article.post_type === 'review' ? 'Crítica do Autor' : 'Notícia'}
+                    {article.post_type === 'review' ? 'Review da Obra' : 'Notícia'}
                   </span>
                   <h2 className="text-xl font-bold mt-1 mb-3 text-white line-clamp-2 group-hover:text-secao-red transition">
                     {article.title}
@@ -116,7 +184,6 @@ export default function Home() {
                 </div>
               </Link>
 
-              {/* RODAPÉ DO CARD - Usando <footer> */}
               <footer className="p-5 pt-0 text-xs text-slate-500 flex items-center gap-1 border-t border-slate-800/50 mt-4">
                 <Calendar size={12} /> {new Date(article.created_at).toLocaleDateString()}
               </footer>
