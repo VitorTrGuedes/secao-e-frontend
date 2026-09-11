@@ -101,6 +101,11 @@ export default function ArticleDetail() {
               <time className="text-xs text-slate-400 flex items-center gap-1 font-medium">
                 <Calendar size={14} /> {new Date(article.created_at).toLocaleDateString()}
               </time>
+              {article.author && (
+                <span className='text-xs text-slate-400 font-medium'>
+                  por <strong className='text-slate-200 font-semibold'>{article.author}</strong>
+                </span>
+              )}
             </div>
 
             {article.rating && (

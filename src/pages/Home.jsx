@@ -184,8 +184,15 @@ export default function Home() {
                 </div>
               </Link>
 
-              <footer className="p-5 pt-0 text-xs text-slate-500 flex items-center gap-1 border-t border-slate-800/50 mt-4">
+              <footer className="p-5 pt-0 text-xs text-slate-500 flex items-center justify-between border-t border-slate-800/50 mt-4">
+              <span>
                 <Calendar size={12} /> {new Date(article.created_at).toLocaleDateString()}
+              </span>
+              {article.author &&(
+                <span>
+                  <strong className='text-slate-200 font-semibold'>{article.author}</strong>
+                </span>
+              )}
               </footer>
             </article>
           ))
