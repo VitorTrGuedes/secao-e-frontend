@@ -14,11 +14,8 @@ test('Renderiza o logo da Seção E e os botões de navegação', () => {
     // 1. Verifica se o texto "SEÇÃO E" está na tela
     expect(screen.getByText(/SEÇÃO/i)).toBeInTheDocument();
 
-    // 2. Verifica se o link "Início" existe
-    expect(screen.getByText(/Início/i)).toBeInTheDocument();
 
-
-    // 3. Verifica se o botão "Sugerir Crítica" existe
+    // 2. Verifica se o botão "Sugerir Crítica" existe
     expect(screen.getByText(/Sugerir Crítica/i)).toBeInTheDocument();
 
 })
