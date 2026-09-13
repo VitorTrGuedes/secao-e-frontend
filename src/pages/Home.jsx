@@ -56,7 +56,7 @@ export default function Home() {
   return (
     <main className="max-w-6xl mx-auto px-4 py-8">
       {/* CABEÇALHO / HERO BANNER */}
-      <header className="mb-10 text-center md:text-left border-b border-secao-border pb-8">
+      <header className="mb-10 text-center md:text-center border-b border-secao-border pb-8">
         <h1 className="text-4xl md:text-5xl font-extrabold mb-3 text-white">
           Cinema, Animes & <span className="text-secao-red">Séries</span>
         </h1>
@@ -65,7 +65,7 @@ export default function Home() {
         </p>
 
         {/* 🔎 BARRA DE PESQUISA E FILTROS */}
-        <section className="flex flex-col md:flex-row gap-4 md:gap-6 justify-start items-center">
+        <section className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center items-center">
           
           {/* CAMPO DE PESQUISA */}
           <div className="relative w-full md:w-96">
