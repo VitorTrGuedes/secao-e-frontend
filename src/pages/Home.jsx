@@ -9,7 +9,9 @@ export default function Home() {
   const [articles, setArticles] = useState([]);
   const [filter, setFilter] = useState('todos');
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    return !localStorage.getItem('secao_e_articles');
+  });
 
   useEffect(() => {
     axios.get(`${API_URL}/articles/`)
@@ -19,11 +21,12 @@ export default function Home() {
           : (res.data?.results || []);
         
         setArticles(data);
+        // Salva no cache do navegador para o próximo acesso ser instantâneo
+        localStorage.setItem('secao_e_articles', JSON.stringify(data));
         setLoading(false);
       })
       .catch(err => {
         console.error("Erro ao carregar artigos:", err);
-        setArticles([]);
         setLoading(false);
       });
   }, []);
