@@ -83,11 +83,11 @@ export default function ArticleDetail() {
       {/* ARTIGO PRINCIPAL */}
       <article className="bg-secao-card border border-secao-border rounded-2xl p-6 md:p-10 shadow-2xl mb-12">
         {article.image_url && (
-          <figure className="relative -mx-6 -mt-6 md:-mx-10 md:-mt-10 mb-8 overflow-hidden rounded-t-2xl bg-slate-950 flex items-center justify-center">
+          <figure className="relative -mx-6 -mt-6 md:-mx-10 md:-mt-10 mb-8 overflow-hidden rounded-t-2xl">
             <img 
               src={article.image_url} 
               alt={article.title} 
-              className="w-full max-h-[500px] object-contain" 
+              className="w-full h-auto block" 
             />
           </figure>
         )}
