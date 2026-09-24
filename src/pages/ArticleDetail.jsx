@@ -87,7 +87,7 @@ export default function ArticleDetail() {
             <img 
               src={article.image_url} 
               alt={article.title} 
-              className="w-full max-h-[500] object-contain" 
+              className="w-full max-h-[500px] object-contain" 
             />
           </figure>
         )}
