@@ -64,7 +64,7 @@ export default function Home() {
           Cinema, Animes & <span className="text-secao-red">Séries</span>
         </h1>
         <p className="text-slate-400 text-lg mb-8">
-          Notícias, opiniões e análises de um não crítico de cinema, além de espaço aberto para a comunidade opinar!
+          Notícias, opiniões e análises simples e diretas, além de espaço aberto para a comunidade opinar!
         </p>
 
         {/* 🔎 BARRA DE PESQUISA E FILTROS */}
