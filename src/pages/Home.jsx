@@ -1,17 +1,24 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Star, Calendar, Search, X } from 'lucide-react';
+import { Star, Calendar, Search, X, ArrowRight, Newspaper, Sparkles } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
 export default function Home() {
-  const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState(() => {
+    try {
+      const cached = localStorage.getItem('secao_e_articles');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return[];
+    }
+  });
+
+  const [loading, setLoading] = useState(() =>  !localStorage.getItem('secao_e_articles'));
+
   const [filter, setFilter] = useState('todos');
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(() => {
-    return !localStorage.getItem('secao_e_articles');
-  });
 
   useEffect(() => {
     axios.get(`${API_URL}/articles/`)
@@ -33,6 +40,10 @@ export default function Home() {
 
   // 🔍 LÓGICA DE FILTRO COMBINADO (Categoria + Texto de Busca)
   const safeArticles = Array.isArray(articles) ? articles : [];
+
+  // Pega apenas os mais recentes de cada tipo
+  const latestReviews = safeArticles.filter(a => a.post_type === 'review').slice(0, 3);
+  const latestNews = safeArticles.filter(a => a.post_type === 'news').slice(0, 6);
   
   const filteredArticles = safeArticles.filter(article => {
     // 1. Valida a Categoria
@@ -126,80 +137,93 @@ export default function Home() {
         )}
       </header>
 
-      {/* GRID DE CARDS */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredArticles.length === 0 ? (
-          <div className="col-span-full text-center py-16 bg-secao-card/30 rounded-2xl border border-slate-800/80 p-8">
-            <p className="text-slate-400 text-lg font-semibold mb-1">Nenhum post encontrado</p>
-            <p className="text-slate-500 text-sm">
-              Tente pesquisar por outros termos ou trocar a categoria selecionada.
-            </p>
-            {searchTerm && (
-              <button
-                onClick={() => { setSearchTerm(''); setFilter('todos'); }}
-                className="mt-4 text-xs font-bold uppercase text-secao-purple hover:underline"
-              >
-                Limpar todos os filtros
-              </button>
-            )}
-          </div>
-        ) : (
-          filteredArticles.map(article => (
-            <article 
-              key={article.id} 
-              className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-red transition group flex flex-col justify-between"
-            >
-              <Link to={`/artigo/${article.slug}`}>
-                <figure className="relative h-48 bg-slate-900 overflow-hidden">
-                  {article.image_url ? (
-                    <img 
-                      src={article.image_url} 
-                      alt={article.title} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300" 
-                    />
-                  ) : (
-                    <figcaption className="w-full h-full flex items-center justify-center text-slate-600 font-bold tracking-widest">
-                      SEÇÃO E
-                    </figcaption>
-                  )}
-                  
-                  <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase px-2 py-1 rounded border border-slate-700">
-                    {article.category}
-                  </span>
+     {/* 🌟 SEÇÃO 1: ÚLTIMAS ANÁLISES DA OBRA */}
+      <section className="space-y-6">
+        <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+          <h2 className="text-2xl font-extrabold text-white flex items-center gap-2">
+            <Sparkles className="text-secao-purple" /> Últimas Análises da Obra
+          </h2>
+          <Link to="/analises" className="text-xs sm:text-sm font-bold text-secao-purple hover:text-violet-400 flex items-center gap-1 transition">
+            Ver todas as análises <ArrowRight size={16} />
+          </Link>
+        </div>
 
-                  {article.rating && (
-                    <span className="absolute top-3 right-3 bg-yellow-500/90 text-slate-950 font-black text-xs px-2 py-1 rounded flex items-center gap-1 shadow">
-                      <Star size={12} fill="currentColor" /> {article.rating}/10
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {latestReviews.length === 0 ? (
+            <p className="text-slate-500 italic col-span-full">Nenhuma análise cadastrada ainda.</p>
+          ) : (
+            latestReviews.map(article => (
+              <article key={article.id} className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-purple transition group flex flex-col justify-between">
+                <Link to={`/artigo/${article.slug}`}>
+                  <figure className="relative h-48 bg-slate-900 overflow-hidden">
+                    <img src={article.image_url} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                    <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase px-2 py-1 rounded border border-slate-700">
+                      {article.category}
                     </span>
-                  )}
-                </figure>
+                    {article.rating && (
+                      <span className="absolute top-3 right-3 bg-yellow-500/90 text-slate-950 font-black text-xs px-2 py-1 rounded flex items-center gap-1 shadow">
+                        <Star size={12} fill="currentColor" /> {article.rating}/10
+                      </span>
+                    )}
+                  </figure>
+                  <div className="p-5">
+                    <span className="text-xs font-semibold text-secao-purple uppercase tracking-wider">Análise</span>
+                    <h3 className="text-lg font-bold mt-1 mb-2 text-white line-clamp-2 group-hover:text-secao-purple transition">
+                      {article.title}
+                    </h3>
+                    <p className="text-slate-400 text-sm line-clamp-2">{article.content}</p>
+                  </div>
+                </Link>
+                <footer className="p-5 pt-0 text-xs text-slate-500 flex items-center justify-between border-t border-slate-800/50 mt-4">
+                  <span><Calendar size={12} className="inline mr-1" />{new Date(article.created_at).toLocaleDateString()}</span>
+                  <span>por <strong className="text-slate-300">{article.author || 'Autor'}</strong></span>
+                </footer>
+              </article>
+            ))
+          )}
+        </div>
+      </section>
 
-                <div className="p-5">
-                  <span className="text-xs font-semibold text-secao-purple uppercase tracking-wider">
-                    {article.post_type === 'review' ? 'Review da Obra' : 'Notícia'}
-                  </span>
-                  <h2 className="text-xl font-bold mt-1 mb-3 text-white line-clamp-2 group-hover:text-secao-red transition">
-                    {article.title}
-                  </h2>
-                  <p className="text-slate-400 text-sm line-clamp-3">
-                    {article.content}
-                  </p>
-                </div>
-              </Link>
+      {/* 📰 SEÇÃO 2: ÚLTIMAS NOTÍCIAS */}
+      <section className="space-y-6">
+        <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+          <h2 className="text-2xl font-extrabold text-white flex items-center gap-2">
+            <Newspaper className="text-secao-red" /> Notícias Recentes
+          </h2>
+          <Link to="/noticias" className="text-xs sm:text-sm font-bold text-secao-red hover:text-rose-400 flex items-center gap-1 transition">
+            Ver todas as notícias <ArrowRight size={16} />
+          </Link>
+        </div>
 
-              <footer className="p-5 pt-0 text-xs text-slate-500 flex items-center justify-between border-t border-slate-800/50 mt-4">
-              <span>
-                <Calendar size={12} /> {new Date(article.created_at).toLocaleDateString()}
-              </span>
-              {article.author &&(
-                <span>
-                  <strong className='text-slate-200 font-semibold'>{article.author}</strong>
-                </span>
-              )}
-              </footer>
-            </article>
-          ))
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {latestNews.length === 0 ? (
+            <p className="text-slate-500 italic col-span-full">Nenhuma notícia disponível no momento.</p>
+          ) : (
+            latestNews.map(article => (
+              <article key={article.id} className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-red transition group flex flex-col justify-between">
+                <Link to={`/artigo/${article.slug}`}>
+                  <figure className="relative h-44 bg-slate-900 overflow-hidden">
+                    <img src={article.image_url} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                    <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase px-2 py-1 rounded border border-slate-700">
+                      {article.category}
+                    </span>
+                  </figure>
+                  <div className="p-4">
+                    <span className="text-xs font-semibold text-secao-red uppercase tracking-wider">Notícia</span>
+                    <h3 className="text-base font-bold mt-1 mb-2 text-white line-clamp-2 group-hover:text-secao-red transition">
+                      {article.title}
+                    </h3>
+                    <p className="text-slate-400 text-xs line-clamp-2">{article.content}</p>
+                  </div>
+                </Link>
+                <footer className="p-4 pt-0 text-xs text-slate-500 flex items-center justify-between border-t border-slate-800/50 mt-3">
+                  <span><Calendar size={12} className="inline mr-1" />{new Date(article.created_at).toLocaleDateString()}</span>
+                  <span>por <strong className="text-slate-300">{article.author}</strong></span>
+                </footer>
+              </article>
+            ))
+          )}
+        </div>
       </section>
     </main>
   );
