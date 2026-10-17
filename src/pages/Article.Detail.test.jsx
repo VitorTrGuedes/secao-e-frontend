@@ -90,4 +90,19 @@ describe('Página ArticleDetail', () => {
       expect(screen.getByText(/Sua opinião foi enviada com sucesso!/i)).toBeInTheDocument();
     });
   });
+
+  it('deve mostrar erro da API sem informar incorretamente que a publicação não existe', async () => {
+    axios.get.mockRejectedValueOnce({ response: { status: 500 } });
+
+    render(
+      <MemoryRouter initialEntries={['/artigo/review-demon-slayer']}>
+        <Routes>
+          <Route path="/artigo/:slug" element={<ArticleDetail />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/erro HTTP 500/i);
+    expect(screen.queryByText(/Publicação não encontrada/i)).not.toBeInTheDocument();
+  });
 });

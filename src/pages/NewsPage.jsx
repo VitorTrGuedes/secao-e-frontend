@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Calendar, Search, X, Newspaper } from 'lucide-react';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -10,6 +11,8 @@ export default function NewsPage() {
   const [newsList, setNewsList] = useState([]);
   const [filter, setFilter] = useState('todos');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     // A rota do backend continua sendo /articles/
@@ -19,7 +22,11 @@ export default function NewsPage() {
         // Filtramos e guardamos apenas as notícias na lista de newsList
         setNewsList(data.filter(a => a.post_type === 'news'));
       })
-      .catch(err => console.error("Erro ao carregar notícias:", err));
+      .catch(err => {
+        console.error("Erro ao carregar notícias:", err);
+        setLoadError(getApiErrorMessage(err, 'as notícias'));
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const filteredNews = newsList.filter(news => {
@@ -76,33 +83,43 @@ export default function NewsPage() {
         </div>
       </header>
 
-      {/* GRID DE NOTÍCIAS */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredNews.length === 0 ? (
-          <p className="text-slate-500 italic col-span-full py-10 text-center">Nenhuma notícia encontrada com esses filtros.</p>
-        ) : (
-          filteredNews.map(news => (
-            <article key={news.id} className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-red transition group flex flex-col justify-between">
-              <Link to={`/artigo/${news.slug}`}>
-                <figure className="relative h-44 bg-slate-900 overflow-hidden">
-                  <img src={news.image_url} alt={news.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-                  <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase px-2 py-1 rounded border border-slate-700">
-                    {news.category}
-                  </span>
-                </figure>
-                <div className="p-4">
-                  <h2 className="text-base font-bold mb-2 text-white line-clamp-2 group-hover:text-secao-red transition">{news.title}</h2>
-                  <p className="text-slate-400 text-xs line-clamp-3">{news.content}</p>
-                </div>
-              </Link>
-              <footer className="p-4 pt-0 text-xs text-slate-500 flex items-center justify-between border-t border-slate-800/50 mt-3">
-                <span><Calendar size={12} className="inline mr-1" />{new Date(news.created_at).toLocaleDateString()}</span>
-                <span>por <strong className="text-slate-300">{news.author}</strong></span>
-              </footer>
-            </article>
-          ))
-        )}
-      </section>
+      {loading ? (
+        <p role="status" className="py-10 text-center text-slate-400">Carregando notícias...</p>
+      ) : loadError ? (
+        <p role="alert" className="rounded-xl border border-rose-800 bg-rose-950/40 p-4 text-center text-sm text-rose-200">
+          {loadError}
+        </p>
+      ) : (
+        <>
+          {/* GRID DE NOTÍCIAS */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {filteredNews.length === 0 ? (
+              <p className="text-slate-500 italic col-span-full py-10 text-center">Nenhuma notícia encontrada com esses filtros.</p>
+            ) : (
+              filteredNews.map(news => (
+                <article key={news.id} className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-red transition group flex flex-col justify-between">
+                  <Link to={`/artigo/${news.slug}`}>
+                    <figure className="relative h-44 bg-slate-900 overflow-hidden">
+                      <img src={news.image_url} alt={news.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                      <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase px-2 py-1 rounded border border-slate-700">
+                        {news.category}
+                      </span>
+                    </figure>
+                    <div className="p-4">
+                      <h2 className="text-base font-bold mb-2 text-white line-clamp-2 group-hover:text-secao-red transition">{news.title}</h2>
+                      <p className="text-slate-400 text-xs line-clamp-3">{news.content}</p>
+                    </div>
+                  </Link>
+                  <footer className="p-4 pt-0 text-xs text-slate-500 flex items-center justify-between border-t border-slate-800/50 mt-3">
+                    <span><Calendar size={12} className="inline mr-1" />{new Date(news.created_at).toLocaleDateString()}</span>
+                    <span>por <strong className="text-slate-300">{news.author}</strong></span>
+                  </footer>
+                </article>
+              ))
+            )}
+          </section>
+        </>
+      )}
     </main>
   );
 }

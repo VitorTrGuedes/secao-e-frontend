@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Star, Calendar, Search, X, ArrowRight, Newspaper, Sparkles } from 'lucide-react';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -16,6 +17,7 @@ export default function Home() {
   });
 
   const [loading, setLoading] = useState(() =>  !localStorage.getItem('secao_e_articles'));
+  const [loadError, setLoadError] = useState('');
 
   const [filter, setFilter] = useState('todos');
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,12 +30,14 @@ export default function Home() {
           : (res.data?.results || []);
         
         setArticles(data);
+        setLoadError('');
         // Salva no cache do navegador para o próximo acesso ser instantâneo
         localStorage.setItem('secao_e_articles', JSON.stringify(data));
         setLoading(false);
       })
       .catch(err => {
         console.error("Erro ao carregar artigos:", err);
+        setLoadError(getApiErrorMessage(err, 'as publicações'));
         setLoading(false);
       });
   }, []);
@@ -41,10 +45,6 @@ export default function Home() {
   // 🔍 LÓGICA DE FILTRO COMBINADO (Categoria + Texto de Busca)
   const safeArticles = Array.isArray(articles) ? articles : [];
 
-  // Pega apenas os mais recentes de cada tipo
-  const latestReviews = safeArticles.filter(a => a.post_type === 'review').slice(0, 3);
-  const latestNews = safeArticles.filter(a => a.post_type === 'news').slice(0, 6);
-  
   const filteredArticles = safeArticles.filter(article => {
     // 1. Valida a Categoria
     const matchesCategory = filter === 'todos' || article.category === filter;
@@ -58,6 +58,9 @@ export default function Home() {
     // Só exibe se bater os dois critérios juntos
     return matchesCategory && matchesSearch;
   });
+
+  const latestReviews = filteredArticles.filter(a => a.post_type === 'review').slice(0, 3);
+  const latestNews = filteredArticles.filter(a => a.post_type === 'news').slice(0, 6);
 
   if (loading) {
     return (
@@ -137,6 +140,13 @@ export default function Home() {
         )}
       </header>
 
+      {loadError && (
+        <p role="alert" className="mb-6 rounded-xl border border-rose-800 bg-rose-950/40 p-4 text-sm text-rose-200">
+          {loadError}
+          {safeArticles.length > 0 && ' Exibindo as publicações salvas anteriormente.'}
+        </p>
+      )}
+
      {/* 🌟 SEÇÃO 1: ÚLTIMAS ANÁLISES DA OBRA */}
       <section className="space-y-6">
         <div className="flex justify-between items-center border-b border-slate-800 pb-4">
@@ -150,7 +160,9 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {latestReviews.length === 0 ? (
-            <p className="text-slate-500 italic col-span-full">Nenhuma análise cadastrada ainda.</p>
+            <p className="text-slate-500 italic col-span-full">
+              {filter !== 'todos' || searchTerm ? 'Nenhuma análise encontrada com esses filtros.' : 'Nenhuma análise cadastrada ainda.'}
+            </p>
           ) : (
             latestReviews.map(article => (
               <article key={article.id} className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-purple transition group flex flex-col justify-between">
@@ -197,7 +209,9 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {latestNews.length === 0 ? (
-            <p className="text-slate-500 italic col-span-full">Nenhuma notícia disponível no momento.</p>
+            <p className="text-slate-500 italic col-span-full">
+              {filter !== 'todos' || searchTerm ? 'Nenhuma notícia encontrada com esses filtros.' : 'Nenhuma notícia disponível no momento.'}
+            </p>
           ) : (
             latestNews.map(article => (
               <article key={article.id} className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-red transition group flex flex-col justify-between">

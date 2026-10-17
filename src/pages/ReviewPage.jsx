@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Star, Calendar, Search, X, Sparkles } from 'lucide-react';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -10,6 +11,8 @@ export default function ReviewsPage() {
   const [reviews, setReviews] = useState([]);
   const [filter, setFilter] = useState('todos');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     // A rota do backend continua sendo /articles/
@@ -19,7 +22,11 @@ export default function ReviewsPage() {
         // Filtramos e guardamos apenas as críticas na lista de reviews
         setReviews(data.filter(a => a.post_type === 'review'));
       })
-      .catch(err => console.error("Erro ao carregar análises:", err));
+      .catch(err => {
+        console.error("Erro ao carregar análises:", err);
+        setLoadError(getApiErrorMessage(err, 'as análises'));
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const filteredReviews = reviews.filter(review => {
@@ -76,38 +83,48 @@ export default function ReviewsPage() {
         </div>
       </header>
 
-      {/* GRID DE ANÁLISES */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredReviews.length === 0 ? (
-          <p className="text-slate-500 italic col-span-full py-10 text-center">Nenhuma análise encontrada com esses filtros.</p>
-        ) : (
-          filteredReviews.map(review => (
-            <article key={review.id} className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-purple transition group flex flex-col justify-between">
-              <Link to={`/artigo/${review.slug}`}>
-                <figure className="relative h-48 bg-slate-900 overflow-hidden">
-                  <img src={review.image_url} alt={review.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-                  <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase px-2 py-1 rounded border border-slate-700">
-                    {review.category}
-                  </span>
-                  {review.rating && (
-                    <span className="absolute top-3 right-3 bg-yellow-500/90 text-slate-950 font-black text-xs px-2 py-1 rounded flex items-center gap-1 shadow">
-                      <Star size={12} fill="currentColor" /> {review.rating}/10
-                    </span>
-                  )}
-                </figure>
-                <div className="p-5">
-                  <h2 className="text-lg font-bold mb-2 text-white line-clamp-2 group-hover:text-secao-purple transition">{review.title}</h2>
-                  <p className="text-slate-400 text-sm line-clamp-3">{review.content}</p>
-                </div>
-              </Link>
-              <footer className="p-5 pt-0 text-xs text-slate-500 flex items-center justify-between border-t border-slate-800/50 mt-4">
-                <span><Calendar size={12} className="inline mr-1" />{new Date(review.created_at).toLocaleDateString()}</span>
-                <span>por <strong className="text-slate-300">{review.author || 'Autor'}</strong></span>
-              </footer>
-            </article>
-          ))
-        )}
-      </section>
+      {loading ? (
+        <p role="status" className="py-10 text-center text-slate-400">Carregando análises...</p>
+      ) : loadError ? (
+        <p role="alert" className="rounded-xl border border-rose-800 bg-rose-950/40 p-4 text-center text-sm text-rose-200">
+          {loadError}
+        </p>
+      ) : (
+        <>
+          {/* GRID DE ANÁLISES */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {filteredReviews.length === 0 ? (
+              <p className="text-slate-500 italic col-span-full py-10 text-center">Nenhuma análise encontrada com esses filtros.</p>
+            ) : (
+              filteredReviews.map(review => (
+                <article key={review.id} className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-purple transition group flex flex-col justify-between">
+                  <Link to={`/artigo/${review.slug}`}>
+                    <figure className="relative h-48 bg-slate-900 overflow-hidden">
+                      <img src={review.image_url} alt={review.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                      <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase px-2 py-1 rounded border border-slate-700">
+                        {review.category}
+                      </span>
+                      {review.rating && (
+                        <span className="absolute top-3 right-3 bg-yellow-500/90 text-slate-950 font-black text-xs px-2 py-1 rounded flex items-center gap-1 shadow">
+                          <Star size={12} fill="currentColor" /> {review.rating}/10
+                        </span>
+                      )}
+                    </figure>
+                    <div className="p-5">
+                      <h2 className="text-lg font-bold mb-2 text-white line-clamp-2 group-hover:text-secao-purple transition">{review.title}</h2>
+                      <p className="text-slate-400 text-sm line-clamp-3">{review.content}</p>
+                    </div>
+                  </Link>
+                  <footer className="p-5 pt-0 text-xs text-slate-500 flex items-center justify-between border-t border-slate-800/50 mt-4">
+                    <span><Calendar size={12} className="inline mr-1" />{new Date(review.created_at).toLocaleDateString()}</span>
+                    <span>por <strong className="text-slate-300">{review.author || 'Autor'}</strong></span>
+                  </footer>
+                </article>
+              ))
+            )}
+          </section>
+        </>
+      )}
     </main>
   );
 }

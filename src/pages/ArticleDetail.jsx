@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Star, Send, MessageSquare, User, Calendar, ArrowLeft } from 'lucide-react';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -11,24 +12,31 @@ export default function ArticleDetail() {
   const [authorName, setAuthorName] = useState('');
   const [opinion, setOpinion] = useState('');
   const [msg, setMsg] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loadedSlug, setLoadedSlug] = useState(null);
+  const [loadError, setLoadError] = useState('');
+  const loading = loadedSlug !== slug;
 
-  const loadArticle = () => {
-    axios.get(`${API_URL}/articles/${slug}/`)
-      .then(res => {
-        setArticle(res.data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Erro ao carregar o post:", err);
-        setArticle(null);
-        setLoading(false);
-      });
-  };
+  const loadArticle = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL}/articles/${slug}/`);
+      setArticle(res.data);
+      setLoadError('');
+    } catch (err) {
+      console.error("Erro ao carregar o post:", err);
+      setArticle(null);
+      if (err?.response?.status === 404) {
+        setLoadError('');
+      } else {
+        setLoadError(getApiErrorMessage(err, 'esta publicação'));
+      }
+    } finally {
+      setLoadedSlug(slug);
+    }
+  }, [slug]);
 
   useEffect(() => {
     loadArticle();
-  }, [slug]);
+  }, [loadArticle]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -43,7 +51,7 @@ export default function ArticleDetail() {
       setAuthorName('');
       setOpinion('');
       loadArticle();
-    } catch (err) {
+    } catch {
       setMsg('Erro ao enviar sua opinião. Tente novamente.');
     }
   };
@@ -62,7 +70,24 @@ export default function ArticleDetail() {
   if (!article) {
     return (
       <main className="max-w-4xl mx-auto px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold text-white mb-4">Publicação não encontrada</h1>
+        {loadError ? (
+          <>
+            <h1 className="text-2xl font-bold text-white mb-4">Não foi possível carregar a publicação</h1>
+            <p role="alert" className="mb-6 text-rose-200">{loadError}</p>
+            <button
+              type="button"
+              onClick={() => {
+                setLoadedSlug(null);
+                loadArticle();
+              }}
+              className="mr-4 text-secao-purple hover:underline"
+            >
+              Tentar novamente
+            </button>
+          </>
+        ) : (
+          <h1 className="text-2xl font-bold text-white mb-4">Publicação não encontrada</h1>
+        )}
         <Link to="/" className="inline-flex items-center gap-2 text-secao-purple hover:underline">
           <ArrowLeft size={16} /> Voltar para o início
         </Link>

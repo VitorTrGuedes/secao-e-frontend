@@ -1,10 +1,15 @@
-import{render, screen, fireEvente, waitFor, fireEvent} from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import axios from 'axios';
 import Home from './Home';
 
 vi.mock('axios');
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  localStorage.removeItem('secao_e_articles');
+});
 
 const mockArticles = [
   {
@@ -53,5 +58,17 @@ describe('Página Home', () => {
     // 3. O artigo de Cinema deve continuar na tela, mas o de Anime deve sumir
     expect(screen.getByText(/Batman: Novo filme confirmado/i)).toBeInTheDocument();
     expect(screen.queryByText(/Review: Demon Slayer/i)).not.toBeInTheDocument();
+  });
+
+  it('deve informar quando a API falhar ao carregar as publicações', async () => {
+    axios.get.mockRejectedValueOnce({ response: { status: 500 } });
+
+    render(
+      <BrowserRouter>
+        <Home />
+      </BrowserRouter>
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/erro HTTP 500/i);
   });
 });

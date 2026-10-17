@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
-import ReviewsPage from './pages/ReviewsPage'; // ✨ Importe a página de Análises
+import ReviewsPage from './pages/ReviewPage'; // ✨ Importe a página de Análises
 import NewsPage from './pages/NewsPage';       // ✨ Importe a página de Notícias
 import ArticleDetail from './pages/ArticleDetail';
 import SuggestReview from './pages/SuggestReview';
