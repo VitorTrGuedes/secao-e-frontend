@@ -100,7 +100,15 @@ export default function NewsPage() {
                 <article key={news.id} className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-red transition group flex flex-col justify-between">
                   <Link to={`/artigo/${news.slug}`}>
                     <figure className="relative h-44 bg-slate-900 overflow-hidden">
-                      <img src={news.image_url} alt={news.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                      <Newspaper aria-hidden="true" className="absolute inset-0 m-auto text-slate-700" size={36} />
+                      {news.image_url && (
+                        <img
+                          src={news.image_url}
+                          alt={news.title}
+                          onError={(event) => { event.currentTarget.hidden = true; }}
+                          className="relative w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                        />
+                      )}
                       <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase px-2 py-1 rounded border border-slate-700">
                         {news.category}
                       </span>

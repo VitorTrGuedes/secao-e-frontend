@@ -15,6 +15,7 @@ const mockArticle = {
   rating: 9,
   image_url: 'https://example.com/poster.jpg',
   content: 'Análise detalhada do filme.',
+  source_url: 'https://example.com/materia-original',
   created_at: '2026-09-10T00:00:00Z',
   comments: [
     {
@@ -50,6 +51,8 @@ describe('Página ArticleDetail', () => {
       expect(screen.getByText(/Análise detalhada do filme/i)).toBeInTheDocument();
     });
     expect(screen.getByRole('img', { name: mockArticle.title })).toHaveClass('max-h-[32rem]');
+    expect(screen.getByRole('link', { name: /Acessar matéria original/i }))
+      .toHaveAttribute('href', mockArticle.source_url);
 
     // 2. Verifica se o comentário do Tanjiro foi listado
     expect(screen.getByText(/Tanjiro/i)).toBeInTheDocument();

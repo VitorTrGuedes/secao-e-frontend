@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { Star, Send, MessageSquare, User, Calendar, ArrowLeft } from 'lucide-react';
+import { Star, Send, MessageSquare, User, Calendar, ArrowLeft, ExternalLink, Newspaper } from 'lucide-react';
 import { getApiErrorMessage } from '../utils/apiError';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
@@ -108,11 +108,13 @@ export default function ArticleDetail() {
       {/* ARTIGO PRINCIPAL */}
       <article className="bg-secao-card border border-secao-border rounded-2xl p-6 md:p-10 shadow-2xl mb-12">
         {article.image_url && (
-          <figure className="relative -mx-6 -mt-6 md:-mx-10 md:-mt-10 mb-8 overflow-hidden rounded-t-2xl">
+          <figure className="relative -mx-6 -mt-6 md:-mx-10 md:-mt-10 mb-8 min-h-40 overflow-hidden rounded-t-2xl bg-slate-950 flex items-center justify-center">
+            <Newspaper aria-hidden="true" className="absolute text-slate-700" size={40} />
             <img 
               src={article.image_url} 
               alt={article.title} 
-              className="w-full max-h-[32rem] object-contain bg-slate-950 block"
+              onError={(event) => { event.currentTarget.hidden = true; }}
+              className="relative w-full max-h-[32rem] object-contain bg-slate-950 block"
             />
           </figure>
         )}
@@ -148,6 +150,16 @@ export default function ArticleDetail() {
         <div className="prose prose-invert max-w-none text-slate-300 text-lg leading-relaxed whitespace-pre-line">
           {article.content}
         </div>
+        {article.source_url && (
+          <a
+            href={article.source_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-secao-red hover:text-rose-400 transition"
+          >
+            Acessar matéria original <ExternalLink size={16} aria-hidden="true" />
+          </a>
+        )}
       </article>
 
       {/* SEÇÃO DE COMENTÁRIOS */}
