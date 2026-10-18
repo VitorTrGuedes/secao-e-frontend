@@ -13,6 +13,7 @@ const mockArticle = {
   category: 'anime',
   post_type: 'review',
   rating: 9,
+  image_url: 'https://example.com/poster.jpg',
   content: 'Análise detalhada do filme.',
   created_at: '2026-09-10T00:00:00Z',
   comments: [
@@ -48,6 +49,7 @@ describe('Página ArticleDetail', () => {
       expect(screen.getByText(/Nota: 9\/10/i)).toBeInTheDocument();
       expect(screen.getByText(/Análise detalhada do filme/i)).toBeInTheDocument();
     });
+    expect(screen.getByRole('img', { name: mockArticle.title })).toHaveClass('max-h-[32rem]');
 
     // 2. Verifica se o comentário do Tanjiro foi listado
     expect(screen.getByText(/Tanjiro/i)).toBeInTheDocument();

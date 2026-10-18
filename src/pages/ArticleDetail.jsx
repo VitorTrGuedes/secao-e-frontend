@@ -112,7 +112,7 @@ export default function ArticleDetail() {
             <img 
               src={article.image_url} 
               alt={article.title} 
-              className="w-full h-auto block" 
+              className="w-full max-h-[32rem] object-contain bg-slate-950 block"
             />
           </figure>
         )}
