@@ -15,6 +15,7 @@ const mockArticle = {
   rating: 9,
   image_url: 'https://example.com/poster.jpg',
   content: 'Análise detalhada do filme.',
+  content_html: '<p>Análise detalhada do <strong>filme</strong>.</p>',
   source_url: 'https://example.com/materia-original',
   created_at: '2026-09-10T00:00:00Z',
   comments: [
@@ -35,6 +36,9 @@ describe('Página ArticleDetail', () => {
   it('deve carregar e exibir os dados da crítica e os comentários existentes', async () => {
     // Simula a API retornando o artigo
     axios.get.mockResolvedValueOnce({ data: mockArticle });
+    axios.get.mockResolvedValueOnce({ data: [
+      { id: 2, slug: 'noticia-star-wars', post_type: 'news', category: 'cinema', title: 'Notícia de Star Wars', image_url: 'https://example.com/star-wars.jpg' },
+    ] });
 
     render(
       <MemoryRouter initialEntries={['/artigo/review-demon-slayer']}>
@@ -48,11 +52,13 @@ describe('Página ArticleDetail', () => {
     await waitFor(() => {
       expect(screen.getByText(/Review: Demon Slayer - Castelo Infinito/i)).toBeInTheDocument();
       expect(screen.getByText(/Nota: 9\/10/i)).toBeInTheDocument();
-      expect(screen.getByText(/Análise detalhada do filme/i)).toBeInTheDocument();
+      expect(screen.getByText('filme')).toBeInTheDocument();
     });
     expect(screen.getByRole('img', { name: mockArticle.title })).toHaveClass('max-h-[32rem]');
     expect(screen.getByRole('link', { name: /Acessar matéria original/i }))
       .toHaveAttribute('href', mockArticle.source_url);
+    expect(screen.getByRole('link', { name: /Notícia de Star Wars/i }))
+      .toHaveAttribute('href', '/artigo/noticia-star-wars');
 
     // 2. Verifica se o comentário do Tanjiro foi listado
     expect(screen.getByText(/Tanjiro/i)).toBeInTheDocument();
@@ -62,6 +68,7 @@ describe('Página ArticleDetail', () => {
   it('deve permitir que o leitor preencha e envie uma nova opinião com feedback de sucesso', async () => {
     // Primeira chamada carrega o post
     axios.get.mockResolvedValueOnce({ data: mockArticle });
+    axios.get.mockResolvedValueOnce({ data: [] });
     // Chamada do envio do formulário de comentário
     axios.post.mockResolvedValueOnce({ data: { success: true } });
     // Chamada do recarregamento após envio
@@ -98,6 +105,7 @@ describe('Página ArticleDetail', () => {
 
   it('deve mostrar erro da API sem informar incorretamente que a publicação não existe', async () => {
     axios.get.mockRejectedValueOnce({ response: { status: 500 } });
+    axios.get.mockResolvedValueOnce({ data: [] });
 
     render(
       <MemoryRouter initialEntries={['/artigo/review-demon-slayer']}>

@@ -9,6 +9,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 export default function ArticleDetail() {
   const { slug } = useParams();
   const [article, setArticle] = useState(null);
+  const [recentNews, setRecentNews] = useState([]);
+  const [relatedError, setRelatedError] = useState('');
   const [authorName, setAuthorName] = useState('');
   const [opinion, setOpinion] = useState('');
   const [msg, setMsg] = useState('');
@@ -37,6 +39,19 @@ export default function ArticleDetail() {
   useEffect(() => {
     loadArticle();
   }, [loadArticle]);
+
+  useEffect(() => {
+    axios.get(`${API_URL}/articles/`)
+      .then((res) => {
+        const data = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+        setRecentNews(data.filter((item) => item.post_type === 'news' && item.slug !== slug).slice(0, 8));
+        setRelatedError('');
+      })
+      .catch((err) => {
+        console.error('Erro ao carregar outras notícias:', err);
+        setRelatedError(getApiErrorMessage(err, 'outras notícias'));
+      });
+  }, [slug]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -96,7 +111,7 @@ export default function ArticleDetail() {
   }
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-8">
+    <main className="max-w-7xl mx-auto px-4 py-8">
       {/* BOTÃO VOLTAR */}
       <Link 
         to="/" 
@@ -105,8 +120,9 @@ export default function ArticleDetail() {
         <ArrowLeft size={14} /> Voltar para as publicações
       </Link>
 
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] gap-8 items-start">
       {/* ARTIGO PRINCIPAL */}
-      <article className="bg-secao-card border border-secao-border rounded-2xl p-6 md:p-10 shadow-2xl mb-12">
+      <article className="min-w-0 bg-secao-card border border-secao-border rounded-2xl p-6 md:p-10 shadow-2xl">
         {article.image_url && (
           <figure className="relative -mx-6 -mt-6 md:-mx-10 md:-mt-10 mb-8 min-h-40 overflow-hidden rounded-t-2xl bg-slate-950 flex items-center justify-center">
             <Newspaper aria-hidden="true" className="absolute text-slate-700" size={40} />
@@ -147,9 +163,16 @@ export default function ArticleDetail() {
           </h1>
         </header>
 
-        <div className="prose prose-invert max-w-none text-slate-300 text-lg leading-relaxed whitespace-pre-line">
-          {article.content}
-        </div>
+        {article.content_html ? (
+          <div
+            className="max-w-none text-slate-300 text-lg leading-relaxed [&_p]:mb-5 [&_strong]:font-bold [&_strong]:text-white [&_ul]:my-5 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6 [&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-secao-red [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:my-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h3]:my-5 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_a]:text-secao-red [&_a]:underline [&_img]:my-6 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl"
+            dangerouslySetInnerHTML={{ __html: article.content_html }}
+          />
+        ) : (
+          <div className="max-w-none whitespace-pre-line text-lg leading-relaxed text-slate-300">
+            {article.content}
+          </div>
+        )}
         {article.source_url && (
           <a
             href={article.source_url}
@@ -161,6 +184,46 @@ export default function ArticleDetail() {
           </a>
         )}
       </article>
+
+      <aside className="rounded-2xl border border-secao-border bg-secao-card p-5 lg:sticky lg:top-6">
+        <h2 className="mb-5 border-b border-secao-border pb-3 text-lg font-extrabold uppercase tracking-wide text-white">
+          <span className="border-l-4 border-secao-red pl-3">Mais notícias</span>
+        </h2>
+        {relatedError ? (
+          <p role="alert" className="text-sm text-rose-200">{relatedError}</p>
+        ) : recentNews.length === 0 ? (
+          <p className="text-sm text-slate-400">Não há outras notícias disponíveis.</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
+            {recentNews.map((news) => (
+              <Link
+                key={news.id}
+                to={`/artigo/${news.slug}`}
+                className="group min-w-0"
+              >
+                <figure className="relative mb-2 flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-slate-950">
+                  <Newspaper aria-hidden="true" className="absolute text-slate-700" size={30} />
+                  {news.image_url && (
+                    <img
+                      src={news.image_url}
+                      alt=""
+                      onError={(event) => { event.currentTarget.hidden = true; }}
+                      className="relative h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                    />
+                  )}
+                </figure>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-secao-red">
+                  {news.category}
+                </span>
+                <span className="mt-1 block text-sm font-semibold leading-snug text-slate-200 transition group-hover:text-white">
+                  {news.title}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </aside>
+      </div>
 
       {/* SEÇÃO DE COMENTÁRIOS */}
       <section className="bg-secao-card border border-secao-border rounded-2xl p-6 md:p-8 shadow-xl">
