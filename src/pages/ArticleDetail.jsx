@@ -12,8 +12,11 @@ export default function ArticleDetail() {
   const [recentNews, setRecentNews] = useState([]);
   const [relatedError, setRelatedError] = useState('');
   const [authorName, setAuthorName] = useState('');
+  const [email, setEmail] = useState('');
   const [opinion, setOpinion] = useState('');
-  const [msg, setMsg] = useState('');
+  const [commentMessage, setCommentMessage] = useState('');
+  const [commentError, setCommentError] = useState('');
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
   const [loadedSlug, setLoadedSlug] = useState(null);
   const [loadError, setLoadError] = useState('');
   const loading = loadedSlug !== slug;
@@ -56,18 +59,29 @@ export default function ArticleDetail() {
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!article) return;
+    setCommentSubmitting(true);
+    setCommentMessage('');
+    setCommentError('');
     try {
       await axios.post(`${API_URL}/comments/`, {
         article: article.id,
         author_name: authorName,
+        email,
         opinion: opinion
       });
-      setMsg('Sua opinião foi enviada com sucesso!');
+      setCommentMessage('Enviamos um link de confirmação para seu e-mail. Seu comentário aparecerá após a confirmação.');
       setAuthorName('');
+      setEmail('');
       setOpinion('');
-      loadArticle();
-    } catch {
-      setMsg('Erro ao enviar sua opinião. Tente novamente.');
+    } catch (error) {
+      const detail = error?.response?.data?.detail;
+      setCommentError(
+        typeof detail === 'string'
+          ? detail
+          : 'Não foi possível enviar o comentário. Confira os dados e tente novamente.'
+      );
+    } finally {
+      setCommentSubmitting(false);
     }
   };
 
@@ -243,7 +257,16 @@ export default function ArticleDetail() {
             O que você achou desta obra? Deixe sua visão abaixo:
           </h3>
           
-          {msg && <p className="text-sm font-semibold text-green-400 bg-green-950/40 p-3 rounded border border-green-800">{msg}</p>}
+          {commentMessage && (
+            <p role="status" className="text-sm font-semibold text-green-400 bg-green-950/40 p-3 rounded border border-green-800">
+              {commentMessage}
+            </p>
+          )}
+          {commentError && (
+            <p role="alert" className="text-sm font-semibold text-rose-200 bg-rose-950/40 p-3 rounded border border-rose-800">
+              {commentError}
+            </p>
+          )}
 
           <div>
             <label htmlFor="author_name" className="sr-only">Seu nome ou apelido</label>
@@ -256,6 +279,24 @@ export default function ArticleDetail() {
               required
               className="w-full p-3 bg-slate-900 border border-slate-800 rounded-lg text-white focus:outline-none focus:border-secao-purple text-sm"
             />
+          </div>
+
+          <div>
+            <label htmlFor="comment_email" className="sr-only">Seu e-mail</label>
+            <input
+              id="comment_email"
+              type="email"
+              placeholder="Seu e-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              maxLength={254}
+              required
+              className="w-full p-3 bg-slate-900 border border-slate-800 rounded-lg text-white focus:outline-none focus:border-secao-purple text-sm"
+            />
+            <p className="mt-2 text-xs text-slate-500">
+              Enviaremos um link para confirmar seu endereço. Seu e-mail não será exibido no site.
+            </p>
           </div>
 
           <div>
@@ -273,9 +314,10 @@ export default function ArticleDetail() {
 
           <button 
             type="submit" 
+            disabled={commentSubmitting}
             className="bg-secao-purple hover:bg-violet-600 text-white font-bold px-6 py-3 rounded-lg flex items-center gap-2 transition shadow-lg shadow-purple-950/50 text-sm"
           >
-            <Send size={16} /> Publicar Minha Opinião
+            <Send size={16} /> {commentSubmitting ? 'Enviando...' : 'Enviar para confirmação'}
           </button>
         </form>
 

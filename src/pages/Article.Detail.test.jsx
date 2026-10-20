@@ -92,9 +92,9 @@ describe('Página ArticleDetail', () => {
     axios.get.mockResolvedValueOnce({ data: mockArticle });
     axios.get.mockResolvedValueOnce({ data: [] });
     // Chamada do envio do formulário de comentário
-    axios.post.mockResolvedValueOnce({ data: { success: true } });
-    // Chamada do recarregamento após envio
-    axios.get.mockResolvedValueOnce({ data: mockArticle });
+    axios.post.mockResolvedValueOnce({
+      data: { detail: 'Enviamos um link de confirmação para o e-mail informado.' }
+    });
 
     render(
       <MemoryRouter initialEntries={['/artigo/review-demon-slayer']}>
@@ -110,10 +110,12 @@ describe('Página ArticleDetail', () => {
 
     // 1. Preenche o formulário de opinião
     const nameInput = screen.getByPlaceholderText(/Seu nome ou apelido/i);
+    const emailInput = screen.getByPlaceholderText(/Seu e-mail/i);
     const opinionInput = screen.getByPlaceholderText(/Escreva aqui sua opinião/i);
-    const submitButton = screen.getByRole('button', { name: /Publicar Minha Opinião/i });
+    const submitButton = screen.getByRole('button', { name: /Enviar para confirmação/i });
 
     fireEvent.change(nameInput, { target: { value: 'Nezuko' } });
+    fireEvent.change(emailInput, { target: { value: 'nezuko@example.com' } });
     fireEvent.change(opinionInput, { target: { value: 'A animação deste filme foi nota 10!' } });
 
     // 2. Clica para enviar
@@ -121,7 +123,14 @@ describe('Página ArticleDetail', () => {
 
     // 3. Verifica se a mensagem de confirmação surgiu
     await waitFor(() => {
-      expect(screen.getByText(/Sua opinião foi enviada com sucesso!/i)).toBeInTheDocument();
+      expect(screen.getByRole('status')).toHaveTextContent(/link de confirmação para seu e-mail/i);
+    });
+    expect(emailInput).toHaveAttribute('type', 'email');
+    expect(axios.post).toHaveBeenCalledWith(expect.stringMatching(/\/comments\/$/), {
+      article: mockArticle.id,
+      author_name: 'Nezuko',
+      email: 'nezuko@example.com',
+      opinion: 'A animação deste filme foi nota 10!'
     });
   });
 
