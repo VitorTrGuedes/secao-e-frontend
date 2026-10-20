@@ -65,6 +65,28 @@ describe('Página ArticleDetail', () => {
     expect(screen.getByText(/Filme sensacional!/i)).toBeInTheDocument();
   });
 
+  it('deve preservar as quebras de linha do conteúdo original da análise', async () => {
+    const originalContent = 'Primeiro parágrafo da análise.\n\nSegundo parágrafo.';
+    axios.get.mockResolvedValueOnce({
+      data: { ...mockArticle, content: 'Conteúdo sem quebras', content_html: originalContent }
+    });
+    axios.get.mockResolvedValueOnce({ data: [] });
+
+    render(
+      <MemoryRouter initialEntries={['/artigo/review-demon-slayer']}>
+        <Routes>
+          <Route path="/artigo/:slug" element={<ArticleDetail />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    const article = await screen.findByRole('article');
+    const content = article.querySelector('div.whitespace-pre-line');
+    expect(content).toBeInTheDocument();
+    expect(content).toHaveClass('whitespace-pre-line');
+    expect(content.textContent).toBe(originalContent);
+  });
+
   it('deve permitir que o leitor preencha e envie uma nova opinião com feedback de sucesso', async () => {
     // Primeira chamada carrega o post
     axios.get.mockResolvedValueOnce({ data: mockArticle });
