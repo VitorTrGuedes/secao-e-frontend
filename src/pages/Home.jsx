@@ -74,10 +74,10 @@ export default function Home() {
     <main className="max-w-6xl mx-auto px-4 py-8">
       {/* CABEÇALHO / HERO BANNER */}
       <header className="mb-10 text-center md:text-center border-b border-secao-border pb-8">
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-3 text-white">
+        <h1 className="mb-3 text-3xl font-extrabold text-white sm:text-4xl md:text-5xl">
           Cinema, Animes & <span className="text-secao-red">Séries</span>
         </h1>
-        <p className="text-slate-400 text-lg mb-8">
+        <p className="mb-8 text-base text-slate-400 sm:text-lg">
           Notícias, opiniões e análises simples e diretas, além de espaço aberto para a comunidade opinar!
         </p>
 
@@ -112,12 +112,12 @@ export default function Home() {
           </div>
 
           {/* BOTÕES DE CATEGORIA */}
-          <nav aria-label="Filtros de categoria" className="flex flex-wrap justify-center gap-2 w-full md:w-auto">
+          <nav aria-label="Filtros de categoria" className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center md:w-auto">
             {['todos', 'cinema', 'anime', 'serie'].map(cat => (
               <button
                 key={cat}
                 onClick={() => setFilter(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition ${
+                className={`min-h-11 rounded-xl px-3 py-2 text-xs font-bold uppercase transition sm:px-4 ${
                   filter === cat 
                     ? 'bg-secao-red text-white shadow-lg shadow-rose-950/40 scale-105' 
                     : 'bg-secao-card hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800'
@@ -149,11 +149,11 @@ export default function Home() {
 
      {/* 🌟 SEÇÃO 1: ÚLTIMAS ANÁLISES DA OBRA */}
       <section className="space-y-6">
-        <div className="flex justify-between items-center border-b border-slate-800 pb-4">
-          <h2 className="text-2xl font-extrabold text-white flex items-center gap-2">
+        <div className="flex flex-col items-start justify-between gap-3 border-b border-slate-800 pb-4 sm:flex-row sm:items-center">
+          <h2 className="flex items-center gap-2 text-xl font-extrabold text-white sm:text-2xl">
             <Sparkles className="text-secao-purple" /> Últimas Análises da Obra
           </h2>
-          <Link to="/analises" className="text-xs sm:text-sm font-bold text-secao-purple hover:text-violet-400 flex items-center gap-1 transition">
+          <Link to="/analises" className="inline-flex min-h-11 items-center gap-1 text-sm font-bold text-secao-purple transition hover:text-violet-400">
             Ver todas as análises <ArrowRight size={16} />
           </Link>
         </div>
@@ -167,8 +167,8 @@ export default function Home() {
             latestReviews.map(article => (
               <article key={article.id} className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-purple transition group flex flex-col justify-between">
                 <Link to={`/artigo/${article.slug}`}>
-                  <figure className="relative h-48 bg-slate-900 overflow-hidden">
-                    <img src={article.image_url} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                  <figure className="relative aspect-video overflow-hidden bg-slate-900">
+                    <img src={article.image_url} alt={article.title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                     <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase px-2 py-1 rounded border border-slate-700">
                       {article.category}
                     </span>
@@ -198,11 +198,11 @@ export default function Home() {
 
       {/* 📰 SEÇÃO 2: ÚLTIMAS NOTÍCIAS */}
       <section className="space-y-6">
-        <div className="flex justify-between items-center border-b border-slate-800 pb-4">
-          <h2 className="text-2xl font-extrabold text-white flex items-center gap-2">
+        <div className="flex flex-col items-start justify-between gap-3 border-b border-slate-800 pb-4 sm:flex-row sm:items-center">
+          <h2 className="flex items-center gap-2 text-xl font-extrabold text-white sm:text-2xl">
             <Newspaper className="text-secao-red" /> Notícias Recentes
           </h2>
-          <Link to="/noticias" className="text-xs sm:text-sm font-bold text-secao-red hover:text-rose-400 flex items-center gap-1 transition">
+          <Link to="/noticias" className="inline-flex min-h-11 items-center gap-1 text-sm font-bold text-secao-red transition hover:text-rose-400">
             Ver todas as notícias <ArrowRight size={16} />
           </Link>
         </div>
@@ -216,14 +216,14 @@ export default function Home() {
             latestNews.map(article => (
               <article key={article.id} className="bg-secao-card border border-secao-border rounded-xl overflow-hidden hover:border-secao-red transition group flex flex-col justify-between">
                 <Link to={`/artigo/${article.slug}`}>
-                  <figure className="relative h-44 bg-slate-900 overflow-hidden">
+                  <figure className="relative aspect-video overflow-hidden bg-slate-900">
                     <Newspaper aria-hidden="true" className="absolute inset-0 m-auto text-slate-700" size={36} />
                     {article.image_url && (
                       <img
                         src={article.image_url}
                         alt={article.title}
                         onError={(event) => { event.currentTarget.hidden = true; }}
-                        className="relative w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                        className="relative h-full w-full object-cover transition duration-300 group-hover:scale-105"
                       />
                     )}
                     <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase px-2 py-1 rounded border border-slate-700">

@@ -144,7 +144,7 @@ export default function ArticleDetail() {
               src={article.image_url} 
               alt={article.title} 
               onError={(event) => { event.currentTarget.hidden = true; }}
-              className="relative w-full max-h-[32rem] object-contain bg-slate-950 block"
+              className="relative block max-h-80 w-full object-contain bg-slate-950 sm:max-h-[32rem]"
             />
           </figure>
         )}
@@ -172,7 +172,7 @@ export default function ArticleDetail() {
             )}
           </div>
 
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
+          <h1 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
             {article.title}
           </h1>
         </header>
@@ -241,9 +241,9 @@ export default function ArticleDetail() {
 
       {/* SEÇÃO DE COMENTÁRIOS */}
       <section className="bg-secao-card border border-secao-border rounded-2xl p-6 md:p-8 shadow-xl">
-        <header className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
-          <h2 className="text-2xl font-bold flex items-center gap-2 text-secao-purple">
-            <MessageSquare /> Opiniões da Comunidade
+        <header className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <h2 className="flex items-center gap-2 text-xl font-bold text-secao-purple sm:text-2xl">
+            <MessageSquare className="shrink-0" /> Opiniões da Comunidade
           </h2>
           {/* ✅ AQUI ESTAVA O ERRO: Agora usamos a variável protegida 'comments' */}
           <span className="text-xs font-bold bg-slate-900 px-3 py-1 rounded-full text-slate-400 border border-slate-800">
@@ -252,7 +252,7 @@ export default function ArticleDetail() {
         </header>
 
         {/* FORMULÁRIO DE ENVIO */}
-        <form onSubmit={handleCommentSubmit} className="space-y-4 mb-10 bg-slate-950/70 p-5 rounded-xl border border-slate-800">
+        <form onSubmit={handleCommentSubmit} className="mb-10 space-y-4 rounded-xl border border-slate-800 bg-slate-950/70 p-4 sm:p-5">
           <h3 className="font-semibold text-slate-200 text-sm">
             O que você achou desta obra? Deixe sua visão abaixo:
           </h3>
@@ -315,7 +315,7 @@ export default function ArticleDetail() {
           <button 
             type="submit" 
             disabled={commentSubmitting}
-            className="bg-secao-purple hover:bg-violet-600 text-white font-bold px-6 py-3 rounded-lg flex items-center gap-2 transition shadow-lg shadow-purple-950/50 text-sm"
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-secao-purple px-6 py-3 text-sm font-bold text-white shadow-lg shadow-purple-950/50 transition hover:bg-violet-600 disabled:cursor-wait disabled:opacity-60 sm:w-auto"
           >
             <Send size={16} /> {commentSubmitting ? 'Enviando...' : 'Enviar para confirmação'}
           </button>

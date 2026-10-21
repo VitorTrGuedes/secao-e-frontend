@@ -54,7 +54,8 @@ describe('Página ArticleDetail', () => {
       expect(screen.getByText(/Nota: 9\/10/i)).toBeInTheDocument();
       expect(screen.getByText('filme')).toBeInTheDocument();
     });
-    expect(screen.getByRole('img', { name: mockArticle.title })).toHaveClass('max-h-[32rem]');
+    expect(screen.getByRole('img', { name: mockArticle.title }))
+      .toHaveClass('max-h-80', 'sm:max-h-[32rem]');
     expect(screen.getByRole('link', { name: /Acessar matéria original/i }))
       .toHaveAttribute('href', mockArticle.source_url);
     expect(screen.getByRole('link', { name: /Notícia de Star Wars/i }))
