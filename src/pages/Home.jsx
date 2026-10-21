@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Star, Calendar, Search, X, ArrowRight, Newspaper, Sparkles } from 'lucide-react';
-import { getApiErrorMessage } from '../utils/apiError';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -12,34 +11,30 @@ export default function Home() {
       const cached = localStorage.getItem('secao_e_articles');
       return cached ? JSON.parse(cached) : [];
     } catch {
-      return[];
+      return [];
     }
   });
-
-  const [loading, setLoading] = useState(() =>  !localStorage.getItem('secao_e_articles'));
-  const [loadError, setLoadError] = useState('');
+  const [loading, setLoading] = useState(() => !localStorage.getItem('secao_e_articles'));
 
   const [filter, setFilter] = useState('todos');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    axios.get(`${API_URL}/articles/`)
+    axios.get(`${API_URL}/articles/`, { params: { _: Date.now() } })
       .then(res => {
+        if (res.status !== 200) return;
+
         const data = Array.isArray(res.data) 
           ? res.data 
           : (res.data?.results || []);
         
         setArticles(data);
-        setLoadError('');
-        // Salva no cache do navegador para o próximo acesso ser instantâneo
         localStorage.setItem('secao_e_articles', JSON.stringify(data));
-        setLoading(false);
       })
       .catch(err => {
         console.error("Erro ao carregar artigos:", err);
-        setLoadError(getApiErrorMessage(err, 'as publicações'));
-        setLoading(false);
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   // 🔍 LÓGICA DE FILTRO COMBINADO (Categoria + Texto de Busca)
@@ -139,13 +134,6 @@ export default function Home() {
           </p>
         )}
       </header>
-
-      {loadError && (
-        <p role="alert" className="mb-6 rounded-xl border border-rose-800 bg-rose-950/40 p-4 text-sm text-rose-200">
-          {loadError}
-          {safeArticles.length > 0 && ' Exibindo as publicações salvas anteriormente.'}
-        </p>
-      )}
 
      {/* 🌟 SEÇÃO 1: ÚLTIMAS ANÁLISES DA OBRA */}
       <section className="space-y-6">
