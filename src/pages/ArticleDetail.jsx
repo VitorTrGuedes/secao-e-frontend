@@ -179,7 +179,7 @@ export default function ArticleDetail() {
 
         {article.content_html ? (
           <div
-            className="max-w-none whitespace-pre-line text-slate-300 text-lg leading-relaxed [&_p]:mb-5 [&_strong]:font-bold [&_strong]:text-white [&_ul]:my-5 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6 [&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-secao-red [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:my-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h3]:my-5 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_a]:text-secao-red [&_a]:underline [&_img]:my-6 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl"
+            className="max-w-none text-slate-300 text-lg leading-relaxed [&_p]:mb-5 [&_strong]:font-bold [&_strong]:text-white [&_ul]:my-5 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6 [&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-secao-red [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:my-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h3]:my-5 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_a]:text-secao-red [&_a]:underline [&_img]:my-6 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl"
             dangerouslySetInnerHTML={{ __html: article.content_html }}
           />
         ) : (

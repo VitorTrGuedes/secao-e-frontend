@@ -66,10 +66,12 @@ describe('Página ArticleDetail', () => {
     expect(screen.getByText(/Filme sensacional!/i)).toBeInTheDocument();
   });
 
-  it('deve preservar as quebras de linha do conteúdo original da análise', async () => {
-    const originalContent = 'Primeiro parágrafo da análise.\n\nSegundo parágrafo.';
+  it('deve evitar espaços extras entre os blocos de conteúdo HTML da análise', async () => {
     axios.get.mockResolvedValueOnce({
-      data: { ...mockArticle, content: 'Conteúdo sem quebras', content_html: originalContent }
+      data: {
+        ...mockArticle,
+        content_html: '<p>Primeiro parágrafo da análise.</p>\n\n\n<p>Segundo parágrafo.</p>'
+      }
     });
     axios.get.mockResolvedValueOnce({ data: [] });
 
@@ -82,10 +84,12 @@ describe('Página ArticleDetail', () => {
     );
 
     const article = await screen.findByRole('article');
-    const content = article.querySelector('div.whitespace-pre-line');
+    const content = article.querySelector('div.max-w-none');
     expect(content).toBeInTheDocument();
-    expect(content).toHaveClass('whitespace-pre-line');
-    expect(content.textContent).toBe(originalContent);
+    expect(content).not.toHaveClass('whitespace-pre-line');
+    expect(content.querySelectorAll('p')).toHaveLength(2);
+    expect(content).toHaveTextContent('Primeiro parágrafo da análise.');
+    expect(content).toHaveTextContent('Segundo parágrafo.');
   });
 
   it('deve permitir que o leitor preencha e envie uma nova opinião com feedback de sucesso', async () => {
