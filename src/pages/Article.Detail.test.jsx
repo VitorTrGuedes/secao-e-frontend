@@ -92,6 +92,31 @@ describe('Página ArticleDetail', () => {
     expect(content).toHaveTextContent('Segundo parágrafo.');
   });
 
+  it('deve preservar os parágrafos publicados como texto simples no painel Django', async () => {
+    const articleContent = 'Primeiro parágrafo.\r\n\r\nSegundo parágrafo.\r\n\r\nTerceiro parágrafo.';
+    axios.get.mockResolvedValueOnce({
+      data: { ...mockArticle, content: articleContent, content_html: articleContent }
+    });
+    axios.get.mockResolvedValueOnce({ data: [] });
+
+    render(
+      <MemoryRouter initialEntries={['/artigo/review-demon-slayer']}>
+        <Routes>
+          <Route path="/artigo/:slug" element={<ArticleDetail />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await screen.findByText('Terceiro parágrafo.');
+    const article = screen.getByRole('article');
+    const contentContainer = article.querySelector('div.max-w-none.space-y-5');
+    expect(contentContainer).toBeInTheDocument();
+    expect(contentContainer.querySelectorAll('p')).toHaveLength(3);
+    expect(contentContainer.querySelectorAll('p')[0]).toHaveTextContent('Primeiro parágrafo.');
+    expect(contentContainer.querySelectorAll('p')[1]).toHaveTextContent('Segundo parágrafo.');
+    expect(contentContainer.querySelectorAll('p')[2]).toHaveTextContent('Terceiro parágrafo.');
+  });
+
   it('deve permitir que o leitor preencha e envie uma nova opinião com feedback de sucesso', async () => {
     // Primeira chamada carrega o post
     axios.get.mockResolvedValueOnce({ data: mockArticle });
