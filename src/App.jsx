@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import ReviewsPage from './pages/ReviewPage'; // ✨ Importe a página de Análises
@@ -7,9 +8,20 @@ import ArticleDetail from './pages/ArticleDetail';
 import ConfirmComment from './pages/ConfirmComment';
 import SuggestReview from './pages/SuggestReview';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [pathname]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Navbar />
       <main className="pb-16">
         <Routes>
