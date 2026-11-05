@@ -180,6 +180,8 @@ describe('Página ArticleDetail', () => {
       }
     });
     axios.get.mockResolvedValueOnce({ data: [] });
+    axios.get.mockResolvedValueOnce({ data: {} });
+    axios.get.mockResolvedValueOnce({ data: {} });
 
     render(
       <MemoryRouter initialEntries={['/artigo/review-demon-slayer']}>
@@ -191,6 +193,47 @@ describe('Página ArticleDetail', () => {
 
     expect(await screen.findByText('97%')).toBeInTheDocument();
     expect(screen.getByText('8.8/10')).toBeInTheDocument();
+  });
+
+  it('deve buscar automaticamente as notas externas quando a crítica não as possui', async () => {
+    vi.resetAllMocks();
+    axios.get.mockImplementation((url) => {
+      if (url.endsWith('/ratings/')) {
+        return Promise.resolve({
+          data: {
+            imdb_rating: 8.8,
+            rotten_tomatoes_rating: 87,
+          }
+        });
+      }
+      if (url.includes('/articles/review-demon-slayer/')) {
+        return Promise.resolve({
+          data: {
+            ...mockArticle,
+            rotten_tomatoes_rating: null,
+            imdb_rating: null,
+          }
+        });
+      }
+      return Promise.resolve({ data: [] });
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/artigo/review-demon-slayer']}>
+        <Routes>
+          <Route path="/artigo/:slug" element={<ArticleDetail />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('87%')).toBeInTheDocument();
+      expect(screen.getByText('8.8/10')).toBeInTheDocument();
+    });
+    expect(axios.get).toHaveBeenCalledWith(
+      expect.stringMatching(/\/ratings\/$/),
+      { params: { title: 'Demon Slayer - Castelo Infinito' } }
+    );
   });
 
   it('deve mostrar erro da API sem informar incorretamente que a publicação não existe', async () => {

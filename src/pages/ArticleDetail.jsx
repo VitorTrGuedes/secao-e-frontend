@@ -54,6 +54,34 @@ export default function ArticleDetail() {
   }, [loadArticle]);
 
   useEffect(() => {
+    if (!article || article.post_type !== 'review') return;
+
+    const hasImdbRating = article.imdb_rating != null;
+    const hasRottenTomatoesRating = article.rotten_tomatoes_rating != null;
+    if (hasImdbRating && hasRottenTomatoesRating) return;
+
+    const title = article.title
+      .replace(/^(análise|analise|review|crítica|critica)\s*:?\s*/i, '')
+      .trim();
+    if (!title) return;
+
+    let active = true;
+    axios.get(`${API_URL}/ratings/`, { params: { title } })
+      .then((res) => {
+        if (active) {
+          setArticle(current => ({ ...current, ...res.data }));
+        }
+      })
+      .catch((err) => {
+        console.error('Erro ao carregar notas externas:', err);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [article]);
+
+  useEffect(() => {
     axios.get(`${API_URL}/articles/`)
       .then((res) => {
         const data = Array.isArray(res.data) ? res.data : (res.data?.results || []);
