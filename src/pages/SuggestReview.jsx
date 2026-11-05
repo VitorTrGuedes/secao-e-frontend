@@ -36,8 +36,11 @@ export default function SuggestReview() {
       setReason('');
     } catch (err) {
       console.error("Erro ao enviar sugestão:", err);
+      const detail = err?.response?.data?.detail;
       setMsg({
-        text: 'Erro ao enviar a sugestão. Verifique os campos e tente novamente.',
+        text: typeof detail === 'string'
+          ? detail
+          : 'Erro ao enviar a sugestão. Tente novamente mais tarde.',
         type: 'error'
       });
     } finally {
