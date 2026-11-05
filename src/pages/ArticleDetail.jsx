@@ -25,16 +25,27 @@ export default function ArticleDetail() {
     .split(/\r?\n\s*\r?\n/)
     .map(paragraph => paragraph.trim())
     .filter(Boolean);
+  const contentText = (article?.content || article?.content_html || '').replace(/<[^>]*>/g, ' ');
+  const rottenTomatoesFromContent = contentText.match(/(\d{1,3})\s*%\s*(?:no|em)?\s*rotten\s*tomatoes/i)?.[1];
+  const imdbFromContent = contentText.match(/(\d+(?:[.,]\d+)?)\s*\/\s*10\s*(?:no|em)?\s*imdb/i)?.[1];
   const rottenTomatoesRating = article?.rotten_tomatoes_rating
     ?? article?.rotten_tomatoes_score
     ?? article?.rotten_tomatoes
     ?? article?.rt_score
+    ?? rottenTomatoesFromContent
     ?? '—';
   const imdbRating = article?.imdb_rating
     ?? article?.imdb_score
     ?? article?.imdb
+    ?? imdbFromContent
     ?? '—';
-  const imdbRatingLabel = typeof imdbRating === 'number' ? `${imdbRating}/10` : imdbRating;
+  const rottenTomatoesRatingLabel = rottenTomatoesRating === '—' || String(rottenTomatoesRating).endsWith('%')
+    ? rottenTomatoesRating
+    : `${rottenTomatoesRating}%`;
+  const imdbRatingLabel = imdbRating === '—' || String(imdbRating).endsWith('/10')
+    ? imdbRating
+    : `${imdbRating}/10`;
+  const contentHtml = (article?.content_html || '').replace(/<br\s*\/?>/gi, ' ');
 
   const loadArticle = useCallback(async () => {
     try {
@@ -187,17 +198,6 @@ export default function ArticleDetail() {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:max-w-sm" aria-label="Notas externas">
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3">
-              <p className="text-[10px] font-black uppercase tracking-wide text-red-300">Rotten Tomatoes</p>
-              <p className="mt-1 text-lg font-black text-white">{rottenTomatoesRating}</p>
-            </div>
-            <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3">
-              <p className="text-[10px] font-black uppercase tracking-wide text-yellow-300">IMDb</p>
-              <p className="mt-1 text-lg font-black text-white">{imdbRatingLabel}</p>
-            </div>
-          </div>
-
           <h1 className="break-words text-2xl font-extrabold leading-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
             {article.title}
           </h1>
@@ -206,7 +206,7 @@ export default function ArticleDetail() {
         {hasFormattedContent ? (
           <div
             className="max-w-none break-words text-base leading-7 text-slate-300 sm:text-lg sm:leading-relaxed [&_p]:mb-5 [&_strong]:font-bold [&_strong]:text-white [&_ul]:my-5 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6 [&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-secao-red [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:my-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h3]:my-5 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_a]:text-secao-red [&_a]:underline [&_img]:my-6 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl"
-            dangerouslySetInnerHTML={{ __html: article.content_html }}
+            dangerouslySetInnerHTML={{ __html: contentHtml }}
           />
         ) : (
           <div className="max-w-none space-y-5 text-base leading-7 text-slate-300 sm:text-lg sm:leading-relaxed">
@@ -215,6 +215,16 @@ export default function ArticleDetail() {
             ))}
           </div>
         )}
+        <div className="mt-8 grid w-full max-w-sm grid-cols-2 gap-3" aria-label="Notas externas">
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3">
+            <p className="text-[10px] font-black uppercase tracking-wide text-red-300">Rotten Tomatoes</p>
+            <p className="mt-1 text-lg font-black text-white">{rottenTomatoesRatingLabel}</p>
+          </div>
+          <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3">
+            <p className="text-[10px] font-black uppercase tracking-wide text-yellow-300">IMDb</p>
+            <p className="mt-1 text-lg font-black text-white">{imdbRatingLabel}</p>
+          </div>
+        </div>
         {article.source_url && (
           <a
             href={article.source_url}
