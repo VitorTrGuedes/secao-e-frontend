@@ -170,6 +170,29 @@ describe('Página ArticleDetail', () => {
     });
   });
 
+  it('deve recuperar notas antigas em formatos diferentes nos conteúdos publicados', async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        ...mockArticle,
+        rotten_tomatoes_rating: null,
+        imdb_rating: null,
+        content: 'Uma análise antiga. IMDb: 8,8/10 e Rotten Tomatoes: 97%.'
+      }
+    });
+    axios.get.mockResolvedValueOnce({ data: [] });
+
+    render(
+      <MemoryRouter initialEntries={['/artigo/review-demon-slayer']}>
+        <Routes>
+          <Route path="/artigo/:slug" element={<ArticleDetail />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText('97%')).toBeInTheDocument();
+    expect(screen.getByText('8.8/10')).toBeInTheDocument();
+  });
+
   it('deve mostrar erro da API sem informar incorretamente que a publicação não existe', async () => {
     axios.get.mockRejectedValueOnce({ response: { status: 500 } });
     axios.get.mockResolvedValueOnce({ data: [] });

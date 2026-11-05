@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Star, Send, MessageSquare, User, Calendar, ArrowLeft, ExternalLink, Newspaper } from 'lucide-react';
 import { getApiErrorMessage } from '../utils/apiError';
+import { formatImdbRating, formatRottenTomatoesRating, getReviewRatings } from '../utils/reviewRatings';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -25,26 +26,9 @@ export default function ArticleDetail() {
     .split(/\r?\n\s*\r?\n/)
     .map(paragraph => paragraph.trim())
     .filter(Boolean);
-  const contentText = (article?.content || article?.content_html || '').replace(/<[^>]*>/g, ' ');
-  const rottenTomatoesFromContent = contentText.match(/(\d{1,3})\s*%\s*(?:no|em)?\s*rotten\s*tomatoes/i)?.[1];
-  const imdbFromContent = contentText.match(/(\d+(?:[.,]\d+)?)\s*\/\s*10\s*(?:no|em)?\s*imdb/i)?.[1];
-  const rottenTomatoesRating = article?.rotten_tomatoes_rating
-    ?? article?.rotten_tomatoes_score
-    ?? article?.rotten_tomatoes
-    ?? article?.rt_score
-    ?? rottenTomatoesFromContent
-    ?? '—';
-  const imdbRating = article?.imdb_rating
-    ?? article?.imdb_score
-    ?? article?.imdb
-    ?? imdbFromContent
-    ?? '—';
-  const rottenTomatoesRatingLabel = rottenTomatoesRating === '—' || String(rottenTomatoesRating).endsWith('%')
-    ? rottenTomatoesRating
-    : `${rottenTomatoesRating}%`;
-  const imdbRatingLabel = imdbRating === '—' || String(imdbRating).endsWith('/10')
-    ? imdbRating
-    : `${imdbRating}/10`;
+  const { rottenTomatoes, imdb } = getReviewRatings(article);
+  const rottenTomatoesRatingLabel = formatRottenTomatoesRating(rottenTomatoes);
+  const imdbRatingLabel = formatImdbRating(imdb);
   const contentHtml = (article?.content_html || '').replace(/<br\s*\/?>/gi, ' ');
 
   const loadArticle = useCallback(async () => {
