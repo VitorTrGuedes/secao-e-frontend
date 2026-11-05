@@ -13,6 +13,8 @@ const mockArticle = {
   category: 'anime',
   post_type: 'review',
   rating: 9,
+  rotten_tomatoes_rating: '92%',
+  imdb_rating: 8.7,
   image_url: 'https://example.com/poster.jpg',
   content: 'Análise detalhada do filme.',
   content_html: '<p>Análise detalhada do <strong>filme</strong>.</p>',
@@ -52,6 +54,10 @@ describe('Página ArticleDetail', () => {
     await waitFor(() => {
       expect(screen.getByText(/Review: Demon Slayer - Castelo Infinito/i)).toBeInTheDocument();
       expect(screen.getByText(/Nota: 9\/10/i)).toBeInTheDocument();
+      expect(screen.getByText('Rotten Tomatoes')).toBeInTheDocument();
+      expect(screen.getByText('92%')).toBeInTheDocument();
+      expect(screen.getByText('IMDb')).toBeInTheDocument();
+      expect(screen.getByText('8.7/10')).toBeInTheDocument();
       expect(screen.getByText('filme')).toBeInTheDocument();
     });
     expect(screen.getByRole('img', { name: mockArticle.title }))

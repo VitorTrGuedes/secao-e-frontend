@@ -25,6 +25,8 @@ export default function ArticleDetail() {
     .split(/\r?\n\s*\r?\n/)
     .map(paragraph => paragraph.trim())
     .filter(Boolean);
+  const rottenTomatoesRating = article?.rotten_tomatoes_rating ?? article?.rotten_tomatoes_score ?? article?.rotten_tomatoes;
+  const imdbRating = article?.imdb_rating ?? article?.imdb_score ?? article?.imdb;
 
   const loadArticle = useCallback(async () => {
     try {
@@ -155,8 +157,8 @@ export default function ArticleDetail() {
         )}
 
         <header className="mb-8 border-b border-secao-border pb-6">
-          <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
-            <div className="flex items-center gap-3">
+          <div className="mb-4 flex flex-col items-start gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
               <span className="bg-secao-red text-white text-xs font-black uppercase px-3 py-1 rounded-full tracking-wide">
                 {article.category}
               </span>
@@ -177,14 +179,31 @@ export default function ArticleDetail() {
             )}
           </div>
 
-          <h1 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
+          {(rottenTomatoesRating != null || imdbRating != null) && (
+            <div className="grid grid-cols-2 gap-3 sm:max-w-sm" aria-label="Notas externas">
+              {rottenTomatoesRating != null && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3">
+                  <p className="text-[10px] font-black uppercase tracking-wide text-red-300">Rotten Tomatoes</p>
+                  <p className="mt-1 text-lg font-black text-white">{rottenTomatoesRating}</p>
+                </div>
+              )}
+              {imdbRating != null && (
+                <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3">
+                  <p className="text-[10px] font-black uppercase tracking-wide text-yellow-300">IMDb</p>
+                  <p className="mt-1 text-lg font-black text-white">{imdbRating}/10</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <h1 className="break-words text-2xl font-extrabold leading-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
             {article.title}
           </h1>
         </header>
 
         {hasFormattedContent ? (
           <div
-            className="max-w-none text-slate-300 text-lg leading-relaxed [&_p]:mb-5 [&_strong]:font-bold [&_strong]:text-white [&_ul]:my-5 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6 [&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-secao-red [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:my-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h3]:my-5 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_a]:text-secao-red [&_a]:underline [&_img]:my-6 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl"
+            className="max-w-none break-words text-lg leading-relaxed text-slate-300 [&_p]:mb-5 [&_strong]:font-bold [&_strong]:text-white [&_ul]:my-5 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6 [&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-secao-red [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:my-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h3]:my-5 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_a]:text-secao-red [&_a]:underline [&_img]:my-6 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl"
             dangerouslySetInnerHTML={{ __html: article.content_html }}
           />
         ) : (
