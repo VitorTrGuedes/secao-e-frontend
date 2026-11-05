@@ -25,8 +25,16 @@ export default function ArticleDetail() {
     .split(/\r?\n\s*\r?\n/)
     .map(paragraph => paragraph.trim())
     .filter(Boolean);
-  const rottenTomatoesRating = article?.rotten_tomatoes_rating ?? article?.rotten_tomatoes_score ?? article?.rotten_tomatoes;
-  const imdbRating = article?.imdb_rating ?? article?.imdb_score ?? article?.imdb;
+  const rottenTomatoesRating = article?.rotten_tomatoes_rating
+    ?? article?.rotten_tomatoes_score
+    ?? article?.rotten_tomatoes
+    ?? article?.rt_score
+    ?? '—';
+  const imdbRating = article?.imdb_rating
+    ?? article?.imdb_score
+    ?? article?.imdb
+    ?? '—';
+  const imdbRatingLabel = typeof imdbRating === 'number' ? `${imdbRating}/10` : imdbRating;
 
   const loadArticle = useCallback(async () => {
     try {
@@ -143,9 +151,9 @@ export default function ArticleDetail() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] gap-8 items-start">
       {/* ARTIGO PRINCIPAL */}
-      <article className="min-w-0 bg-secao-card border border-secao-border rounded-2xl p-6 md:p-10 shadow-2xl">
+      <article className="min-w-0 bg-secao-card border border-secao-border rounded-2xl p-4 sm:p-6 md:p-10 shadow-2xl">
         {article.image_url && (
-          <figure className="relative -mx-6 -mt-6 md:-mx-10 md:-mt-10 mb-8 min-h-40 overflow-hidden rounded-t-2xl bg-slate-950 flex items-center justify-center">
+          <figure className="relative -mx-4 -mt-4 sm:-mx-6 sm:-mt-6 md:-mx-10 md:-mt-10 mb-8 min-h-40 overflow-hidden rounded-t-2xl bg-slate-950 flex items-center justify-center">
             <Newspaper aria-hidden="true" className="absolute text-slate-700" size={40} />
             <img 
               src={article.image_url} 
@@ -179,22 +187,16 @@ export default function ArticleDetail() {
             )}
           </div>
 
-          {(rottenTomatoesRating != null || imdbRating != null) && (
-            <div className="grid grid-cols-2 gap-3 sm:max-w-sm" aria-label="Notas externas">
-              {rottenTomatoesRating != null && (
-                <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3">
-                  <p className="text-[10px] font-black uppercase tracking-wide text-red-300">Rotten Tomatoes</p>
-                  <p className="mt-1 text-lg font-black text-white">{rottenTomatoesRating}</p>
-                </div>
-              )}
-              {imdbRating != null && (
-                <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3">
-                  <p className="text-[10px] font-black uppercase tracking-wide text-yellow-300">IMDb</p>
-                  <p className="mt-1 text-lg font-black text-white">{imdbRating}/10</p>
-                </div>
-              )}
+          <div className="grid grid-cols-2 gap-3 sm:max-w-sm" aria-label="Notas externas">
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3">
+              <p className="text-[10px] font-black uppercase tracking-wide text-red-300">Rotten Tomatoes</p>
+              <p className="mt-1 text-lg font-black text-white">{rottenTomatoesRating}</p>
             </div>
-          )}
+            <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3">
+              <p className="text-[10px] font-black uppercase tracking-wide text-yellow-300">IMDb</p>
+              <p className="mt-1 text-lg font-black text-white">{imdbRatingLabel}</p>
+            </div>
+          </div>
 
           <h1 className="break-words text-2xl font-extrabold leading-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
             {article.title}
@@ -203,11 +205,11 @@ export default function ArticleDetail() {
 
         {hasFormattedContent ? (
           <div
-            className="max-w-none break-words text-lg leading-relaxed text-slate-300 [&_p]:mb-5 [&_strong]:font-bold [&_strong]:text-white [&_ul]:my-5 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6 [&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-secao-red [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:my-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h3]:my-5 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_a]:text-secao-red [&_a]:underline [&_img]:my-6 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl"
+            className="max-w-none break-words text-base leading-7 text-slate-300 sm:text-lg sm:leading-relaxed [&_p]:mb-5 [&_strong]:font-bold [&_strong]:text-white [&_ul]:my-5 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6 [&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-secao-red [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:my-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h3]:my-5 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_a]:text-secao-red [&_a]:underline [&_img]:my-6 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl"
             dangerouslySetInnerHTML={{ __html: article.content_html }}
           />
         ) : (
-          <div className="max-w-none space-y-5 text-lg leading-relaxed text-slate-300">
+          <div className="max-w-none space-y-5 text-base leading-7 text-slate-300 sm:text-lg sm:leading-relaxed">
             {contentParagraphs.map((paragraph, index) => (
               <p key={index} className="whitespace-pre-line">{paragraph}</p>
             ))}
