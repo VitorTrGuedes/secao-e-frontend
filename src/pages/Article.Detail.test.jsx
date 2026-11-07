@@ -205,6 +205,45 @@ describe('Página ArticleDetail', () => {
             rotten_tomatoes_rating: 87,
           }
         });
+
+        it('deve usar o título original cadastrado para buscar notas externas', async () => {
+          axios.get.mockImplementation((url) => {
+            if (url.endsWith('/ratings/')) {
+              return Promise.resolve({
+                data: { imdb_rating: 5.7, rotten_tomatoes_rating: 35 }
+              });
+            }
+            if (url.includes('/articles/review-demon-slayer/')) {
+              return Promise.resolve({
+                data: {
+                  ...mockArticle,
+                  title: 'Análise Zona Cinzenta',
+                  ratings_title: 'Fountain of Youth',
+                  rotten_tomatoes_rating: null,
+                  imdb_rating: null,
+                }
+              });
+            }
+            return Promise.resolve({ data: [] });
+          });
+
+          render(
+            <MemoryRouter initialEntries={['/artigo/review-demon-slayer']}>
+              <Routes>
+                <Route path="/artigo/:slug" element={<ArticleDetail />} />
+              </Routes>
+            </MemoryRouter>
+          );
+
+          await waitFor(() => {
+            expect(screen.getByText('35%')).toBeInTheDocument();
+            expect(screen.getByText('5.7/10')).toBeInTheDocument();
+          });
+          expect(axios.get).toHaveBeenCalledWith(
+            expect.stringMatching(/\/ratings\/$/),
+            { params: { title: 'Fountain of Youth' } }
+          );
+        });
       }
       if (url.includes('/articles/review-demon-slayer/')) {
         return Promise.resolve({

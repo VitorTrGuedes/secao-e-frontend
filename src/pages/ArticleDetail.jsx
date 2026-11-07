@@ -60,7 +60,7 @@ export default function ArticleDetail() {
     const hasRottenTomatoesRating = article.rotten_tomatoes_rating != null;
     if (hasImdbRating && hasRottenTomatoesRating) return;
 
-    const title = article.title
+    const title = (article.ratings_title || article.title)
       .replace(/^(análise|analise|review|crítica|critica)\s*:?\s*/i, '')
       .trim();
     if (!title) return;
