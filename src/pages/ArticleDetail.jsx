@@ -227,16 +227,18 @@ export default function ArticleDetail() {
             ))}
           </div>
         )}
-        <div className="mt-8 grid w-full max-w-sm grid-cols-2 gap-3" aria-label="Notas externas">
-          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3">
-            <p className="text-[10px] font-black uppercase tracking-wide text-red-300">Rotten Tomatoes</p>
-            <p className="mt-1 text-lg font-black text-white">{rottenTomatoesRatingLabel}</p>
+        {article.post_type === 'review' && (
+          <div className="mt-8 grid w-full max-w-sm grid-cols-2 gap-3" aria-label="Notas externas">
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3">
+              <p className="text-[10px] font-black uppercase tracking-wide text-red-300">Rotten Tomatoes</p>
+              <p className="mt-1 text-lg font-black text-white">{rottenTomatoesRatingLabel}</p>
+            </div>
+            <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3">
+              <p className="text-[10px] font-black uppercase tracking-wide text-yellow-300">IMDb</p>
+              <p className="mt-1 text-lg font-black text-white">{imdbRatingLabel}</p>
+            </div>
           </div>
-          <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3">
-            <p className="text-[10px] font-black uppercase tracking-wide text-yellow-300">IMDb</p>
-            <p className="mt-1 text-lg font-black text-white">{imdbRatingLabel}</p>
-          </div>
-        </div>
+        )}
         {article.source_url && (
           <a
             href={article.source_url}

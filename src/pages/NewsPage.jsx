@@ -20,7 +20,10 @@ export default function NewsPage() {
       .then(res => {
         const data = Array.isArray(res.data) ? res.data : (res.data?.results || []);
         // Filtramos e guardamos apenas as notícias na lista de newsList
-        setNewsList(data.filter(a => a.post_type === 'news'));
+        setNewsList(data.filter(a => (
+          a.post_type === 'news' &&
+          ['cinema', 'anime', 'serie'].includes(a.category)
+        )));
       })
       .catch(err => {
         console.error("Erro ao carregar notícias:", err);
