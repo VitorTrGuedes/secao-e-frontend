@@ -173,8 +173,9 @@ export default function ArticleDetail() {
       </Link>
 
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
+      <div className="min-w-0 space-y-8">
       {/* ARTIGO PRINCIPAL */}
-      <article className="order-1 min-w-0 bg-secao-card border border-secao-border rounded-2xl p-4 sm:p-6 lg:col-start-1 lg:row-start-1 lg:order-none lg:p-10 shadow-2xl">
+      <article className="min-w-0 bg-secao-card border border-secao-border rounded-2xl p-4 sm:p-6 lg:p-10 shadow-2xl">
         {article.image_url && (
           <figure className="relative -mx-4 -mt-4 sm:-mx-6 sm:-mt-6 md:-mx-10 md:-mt-10 mb-8 min-h-40 overflow-hidden rounded-t-2xl bg-slate-950 flex items-center justify-center">
             <Newspaper aria-hidden="true" className="absolute text-slate-700" size={40} />
@@ -251,47 +252,8 @@ export default function ArticleDetail() {
         )}
       </article>
 
-      <aside className="order-3 rounded-2xl border border-secao-border bg-secao-card p-5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:order-none lg:sticky lg:top-6">
-        <h2 className="mb-5 border-b border-secao-border pb-3 text-lg font-extrabold uppercase tracking-wide text-white">
-          <span className="border-l-4 border-secao-red pl-3">Mais notícias</span>
-        </h2>
-        {relatedError ? (
-          <p role="alert" className="text-sm text-rose-200">{relatedError}</p>
-        ) : recentNews.length === 0 ? (
-          <p className="text-sm text-slate-400">Não há outras notícias disponíveis.</p>
-        ) : (
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
-            {recentNews.map((news) => (
-              <Link
-                key={news.id}
-                to={`/artigo/${news.slug}`}
-                className="group min-w-0"
-              >
-                <figure className="relative mb-2 flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-slate-950">
-                  <Newspaper aria-hidden="true" className="absolute text-slate-700" size={30} />
-                  {news.image_url && (
-                    <img
-                      src={news.image_url}
-                      alt=""
-                      onError={(event) => { event.currentTarget.hidden = true; }}
-                      className="relative h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                    />
-                  )}
-                </figure>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-secao-red">
-                  {news.category}
-                </span>
-                <span className="mt-1 block text-sm font-semibold leading-snug text-slate-200 transition group-hover:text-white">
-                  {news.title}
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
-      </aside>
-
       {/* SEÇÃO DE COMENTÁRIOS */}
-      <section className="order-2 min-w-0 lg:col-start-1 lg:row-start-2 lg:order-none">
+      <section className="min-w-0">
         <header className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-secao-border bg-secao-card p-6 shadow-xl md:p-8">
           <h2 className="flex items-center gap-2 text-xl font-bold text-secao-purple sm:text-2xl">
             <MessageSquare className="shrink-0" /> Opiniões da Comunidade
@@ -400,6 +362,46 @@ export default function ArticleDetail() {
         </div>
 
       </section>
+      </div>
+
+      <aside className="rounded-2xl border border-secao-border bg-secao-card p-5 lg:sticky lg:top-6">
+        <h2 className="mb-5 border-b border-secao-border pb-3 text-lg font-extrabold uppercase tracking-wide text-white">
+          <span className="border-l-4 border-secao-red pl-3">Mais notícias</span>
+        </h2>
+        {relatedError ? (
+          <p role="alert" className="text-sm text-rose-200">{relatedError}</p>
+        ) : recentNews.length === 0 ? (
+          <p className="text-sm text-slate-400">Não há outras notícias disponíveis.</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
+            {recentNews.map((news) => (
+              <Link
+                key={news.id}
+                to={`/artigo/${news.slug}`}
+                className="group min-w-0"
+              >
+                <figure className="relative mb-2 flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-slate-950">
+                  <Newspaper aria-hidden="true" className="absolute text-slate-700" size={30} />
+                  {news.image_url && (
+                    <img
+                      src={news.image_url}
+                      alt=""
+                      onError={(event) => { event.currentTarget.hidden = true; }}
+                      className="relative h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                    />
+                  )}
+                </figure>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-secao-red">
+                  {news.category}
+                </span>
+                <span className="mt-1 block text-sm font-semibold leading-snug text-slate-200 transition group-hover:text-white">
+                  {news.title}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </aside>
       </div>
     </main>
   );
