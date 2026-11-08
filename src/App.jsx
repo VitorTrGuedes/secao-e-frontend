@@ -7,6 +7,7 @@ import NewsPage from './pages/NewsPage';       // ✨ Importe a página de Notí
 import ArticleDetail from './pages/ArticleDetail';
 import ConfirmComment from './pages/ConfirmComment';
 import SuggestReview from './pages/SuggestReview';
+import WhereToWatch from './pages/WhereToWatch';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -27,6 +28,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/analises" element={<ReviewsPage />} /> {/* ✨ Rota /analises */}
+          <Route path="/onde-assistir" element={<WhereToWatch />} />
           <Route path="/noticias" element={<NewsPage />} />   {/* ✨ Rota /noticias */}
           <Route path="/artigo/:slug" element={<ArticleDetail />} />
           <Route path="/confirmar-comentario" element={<ConfirmComment />} />

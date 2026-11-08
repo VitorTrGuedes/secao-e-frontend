@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, MessageSquarePlus, Star, X } from 'lucide-react';
+import { Menu, MessageSquarePlus, Star, Tv, X } from 'lucide-react';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -39,6 +39,14 @@ export default function Navbar() {
             className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-slate-300 transition hover:bg-secao-card hover:text-secao-purple md:min-h-0 md:bg-transparent md:p-0"
           >
             <Star size={16} className="text-yellow-400" /> Análises
+          </Link>
+
+          <Link
+            to="/onde-assistir"
+            onClick={closeMenu}
+            className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-slate-300 transition hover:bg-secao-card hover:text-secao-purple md:min-h-0 md:bg-transparent md:p-0"
+          >
+            <Tv size={16} className="text-secao-purple" /> Onde Assistir
           </Link>
 
           <Link

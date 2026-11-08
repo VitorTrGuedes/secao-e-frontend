@@ -43,6 +43,7 @@ describe('Navbar', () => {
 
     const navigation = screen.getByRole('navigation', { name: 'Navegação principal' });
     expect(navigation).toHaveClass('md:flex-row');
-    expect(navigation.querySelectorAll('a')).toHaveLength(3);
+    expect(navigation.querySelectorAll('a')).toHaveLength(4);
+    expect(screen.getByRole('link', { name: /Onde Assistir/i })).toHaveAttribute('href', '/onde-assistir');
   });
 });
