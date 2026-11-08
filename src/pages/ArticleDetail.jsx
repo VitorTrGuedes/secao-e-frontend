@@ -19,6 +19,9 @@ export default function ArticleDetail() {
   const [commentError, setCommentError] = useState('');
   const [commentSubmitting, setCommentSubmitting] = useState(false);
   const [deleteInfoId, setDeleteInfoId] = useState(null);
+  const [deleteEmail, setDeleteEmail] = useState('');
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState('');
   const [loadedSlug, setLoadedSlug] = useState(null);
   const [loadError, setLoadError] = useState('');
   const loading = loadedSlug !== slug;
@@ -121,6 +124,25 @@ export default function ArticleDetail() {
       );
     } finally {
       setCommentSubmitting(false);
+    }
+  };
+
+  const handleDeleteRequest = async (e) => {
+    e.preventDefault();
+    if (!deleteInfoId) return;
+    setDeleteSubmitting(true);
+    setDeleteMessage('');
+    try {
+      await axios.post(`${API_URL}/comments/delete/`, {
+        comment_id: deleteInfoId,
+        email: deleteEmail,
+      });
+      setDeleteMessage('Se os dados corresponderem, enviaremos um novo link de exclusão para o e-mail informado.');
+      setDeleteEmail('');
+    } catch (error) {
+      setDeleteMessage(getApiErrorMessage(error, 'solicitar a exclusão'));
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
 
@@ -292,9 +314,30 @@ export default function ArticleDetail() {
                   Apagar comentário
                 </button>
                 {deleteInfoId === c.id && (
-                  <p role="status" className="mt-2 text-xs text-slate-400">
-                    Use o link de exclusão enviado para o e-mail usado neste comentário.
-                  </p>
+                  <form onSubmit={handleDeleteRequest} className="mt-3 space-y-2 rounded-lg border border-slate-800 bg-slate-900/70 p-3">
+                    <label htmlFor={`delete-email-${c.id}`} className="block text-xs text-slate-400">
+                      Informe o e-mail usado neste comentário
+                    </label>
+                    <input
+                      id={`delete-email-${c.id}`}
+                      type="email"
+                      required
+                      value={deleteEmail}
+                      onChange={(event) => setDeleteEmail(event.target.value)}
+                      placeholder="Seu e-mail"
+                      className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-secao-purple"
+                    />
+                    <button
+                      type="submit"
+                      disabled={deleteSubmitting}
+                      className="rounded-lg bg-secao-purple px-3 py-2 text-xs font-bold text-white disabled:opacity-60"
+                    >
+                      {deleteSubmitting ? 'Enviando...' : 'Enviar link de exclusão'}
+                    </button>
+                    {deleteMessage && (
+                      <p role="status" className="text-xs text-slate-300">{deleteMessage}</p>
+                    )}
+                  </form>
                 )}
               </li>
             ))

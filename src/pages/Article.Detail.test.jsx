@@ -71,7 +71,7 @@ describe('Página ArticleDetail', () => {
     expect(screen.getByText(/Tanjiro/i)).toBeInTheDocument();
     expect(screen.getByText(/Filme sensacional!/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Apagar comentário/i }));
-    expect(screen.getByRole('status')).toHaveTextContent(/link de exclusão enviado/i);
+    expect(screen.getByLabelText(/Informe o e-mail usado neste comentário/i)).toBeInTheDocument();
   });
 
   it('deve evitar espaços extras entre os blocos de conteúdo HTML da análise', async () => {
