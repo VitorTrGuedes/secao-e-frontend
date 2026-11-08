@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { Star, Send, MessageSquare, User, Calendar, ArrowLeft, ExternalLink, Newspaper } from 'lucide-react';
+import { Star, Send, MessageSquare, User, Calendar, ArrowLeft, ExternalLink, Newspaper, Clock, Users, Award } from 'lucide-react';
 import { getApiErrorMessage } from '../utils/apiError';
 import { formatImdbRating, formatRottenTomatoesRating, getReviewRatings } from '../utils/reviewRatings';
 
@@ -22,6 +22,8 @@ export default function ArticleDetail() {
   const [deleteEmail, setDeleteEmail] = useState('');
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState('');
+  const [titleDetails, setTitleDetails] = useState(null);
+  const [titleDetailsLoading, setTitleDetailsLoading] = useState(false);
   const [loadedSlug, setLoadedSlug] = useState(null);
   const [loadError, setLoadError] = useState('');
   const loading = loadedSlug !== slug;
@@ -34,6 +36,9 @@ export default function ArticleDetail() {
   const rottenTomatoesRatingLabel = formatRottenTomatoesRating(rottenTomatoes);
   const imdbRatingLabel = formatImdbRating(imdb);
   const contentHtml = (article?.content_html || '').replace(/<br\s*\/?>/gi, ' ');
+  const externalTitle = (article?.ratings_title || article?.title || '')
+    .replace(/^(análise|analise|review|crítica|critica)\s*:?\s*/i, '')
+    .trim();
 
   const loadArticle = useCallback(async () => {
     try {
@@ -84,6 +89,35 @@ export default function ArticleDetail() {
       active = false;
     };
   }, [article]);
+
+  useEffect(() => {
+    if (!article || !externalTitle) return;
+
+    let active = true;
+    setTitleDetailsLoading(true);
+    const request = axios.get(`${API_URL}/title-details/`, { params: { title: externalTitle } });
+    if (!request || typeof request.then !== 'function') {
+      setTitleDetailsLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+    request
+      .then((res) => {
+        if (active) setTitleDetails(res.data);
+      })
+      .catch((err) => {
+        if (active) setTitleDetails(null);
+        console.error('Erro ao carregar detalhes da obra:', err);
+      })
+      .finally(() => {
+        if (active) setTitleDetailsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [article, externalTitle]);
 
   useEffect(() => {
     axios.get(`${API_URL}/articles/`)
@@ -238,6 +272,73 @@ export default function ArticleDetail() {
             {article.title}
           </h1>
         </header>
+
+        {(titleDetailsLoading || titleDetails) && (
+          <section aria-label="Informações da obra" className="mb-8 rounded-xl border border-secao-border bg-slate-950/30 p-4 sm:p-5">
+            {titleDetailsLoading ? (
+              <p role="status" className="text-sm text-slate-400">Carregando informações da obra...</p>
+            ) : (
+              <>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-300">
+                  {titleDetails.year && <span>{titleDetails.year}</span>}
+                  {titleDetails.runtime && (
+                    <span className="inline-flex items-center gap-1">
+                      <Clock size={14} /> {titleDetails.runtime} min
+                    </span>
+                  )}
+                  {titleDetails.genres?.length > 0 && <span>{titleDetails.genres.join(' • ')}</span>}
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3">
+                    <p className="text-[10px] font-black uppercase tracking-wide text-yellow-300">Nota TMDB</p>
+                    <p className="mt-1 flex items-center gap-1 text-lg font-black text-white">
+                      <Star size={16} fill="currentColor" className="text-yellow-400" />
+                      {titleDetails.vote_average ? `${Number(titleDetails.vote_average).toFixed(1)}/10` : '—'}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-secao-purple/30 bg-secao-purple/10 p-3">
+                    <p className="text-[10px] font-black uppercase tracking-wide text-secao-purple">Popularidade</p>
+                    <p className="mt-1 text-lg font-black text-white">
+                      {titleDetails.popularity ? Number(titleDetails.popularity).toFixed(1) : '—'}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-secao-border bg-secao-card p-3">
+                    <p className="text-[10px] font-black uppercase tracking-wide text-slate-400">Votos TMDB</p>
+                    <p className="mt-1 text-lg font-black text-white">
+                      {titleDetails.vote_count ? titleDetails.vote_count.toLocaleString('pt-BR') : '—'}
+                    </p>
+                  </div>
+                </div>
+                {(titleDetails.director || titleDetails.writers?.length > 0 || titleDetails.cast?.length > 0) && (
+                  <div className="mt-4 space-y-2 border-t border-secao-border pt-4 text-sm text-slate-300">
+                    {titleDetails.director && (
+                      <p><strong className="text-white">Direção:</strong> {titleDetails.director}</p>
+                    )}
+                    {titleDetails.writers?.length > 0 && (
+                      <p><strong className="text-white">Roteiro:</strong> {titleDetails.writers.join(', ')}</p>
+                    )}
+                    {titleDetails.cast?.length > 0 && (
+                      <p className="flex items-start gap-2">
+                        <Users size={16} className="mt-0.5 shrink-0 text-secao-purple" />
+                        <span><strong className="text-white">Elenco:</strong> {titleDetails.cast.join(' • ')}</span>
+                      </p>
+                    )}
+                  </div>
+                )}
+                {titleDetails.tmdb_url && (
+                  <a
+                    href={titleDetails.tmdb_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-secao-purple hover:text-violet-300"
+                  >
+                    <Award size={14} /> Ver ficha completa no TMDB
+                  </a>
+                )}
+              </>
+            )}
+          </section>
+        )}
 
         {hasFormattedContent ? (
           <div
