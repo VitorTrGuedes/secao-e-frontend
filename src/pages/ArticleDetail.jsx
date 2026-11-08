@@ -302,8 +302,31 @@ export default function ArticleDetail() {
           </span>
         </header>
 
+        {/* LISTA DE COMENTÁRIOS */}
+        <ul className="mb-10 space-y-4">
+          {comments.length === 0 ? (
+            <li className="text-slate-500 italic text-center py-6 bg-slate-950/30 rounded-xl border border-slate-900">
+              Nenhum leitor opinou ainda. Seja o primeiro a deixar sua marca!
+            </li>
+          ) : (
+            comments.map(c => (
+              <li key={c.id} className="p-4 bg-slate-950/50 rounded-xl border border-slate-800/80">
+                <header className="flex justify-between items-center mb-2">
+                  <strong className="font-bold text-secao-purple flex items-center gap-1.5 text-sm">
+                    <User size={14} /> {c.author_name}
+                  </strong>
+                  <time className="text-[10px] text-slate-500">
+                    {new Date(c.created_at).toLocaleDateString()}
+                  </time>
+                </header>
+                <p className="text-slate-300 text-sm leading-relaxed">{c.opinion}</p>
+              </li>
+            ))
+          )}
+        </ul>
+
         {/* FORMULÁRIO DE ENVIO */}
-        <form onSubmit={handleCommentSubmit} className="mb-10 space-y-4 rounded-xl border border-slate-800 bg-slate-950/70 p-4 sm:p-5">
+        <form onSubmit={handleCommentSubmit} className="space-y-4 rounded-xl border border-slate-800 bg-slate-950/70 p-4 sm:p-5">
           <h3 className="font-semibold text-slate-200 text-sm">
             O que você achou desta obra? Deixe sua visão abaixo:
           </h3>
@@ -372,28 +395,6 @@ export default function ArticleDetail() {
           </button>
         </form>
 
-        {/* LISTA DE COMENTÁRIOS */}
-        <ul className="space-y-4">
-          {comments.length === 0 ? (
-            <li className="text-slate-500 italic text-center py-6 bg-slate-950/30 rounded-xl border border-slate-900">
-              Nenhum leitor opinou ainda. Seja o primeiro a deixar sua marca!
-            </li>
-          ) : (
-            comments.map(c => (
-              <li key={c.id} className="p-4 bg-slate-950/50 rounded-xl border border-slate-800/80">
-                <header className="flex justify-between items-center mb-2">
-                  <strong className="font-bold text-secao-purple flex items-center gap-1.5 text-sm">
-                    <User size={14} /> {c.author_name}
-                  </strong>
-                  <time className="text-[10px] text-slate-500">
-                    {new Date(c.created_at).toLocaleDateString()}
-                  </time>
-                </header>
-                <p className="text-slate-300 text-sm leading-relaxed">{c.opinion}</p>
-              </li>
-            ))
-          )}
-        </ul>
       </section>
       </div>
     </main>

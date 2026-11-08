@@ -6,6 +6,7 @@ import ReviewsPage from './pages/ReviewPage'; // ✨ Importe a página de Análi
 import NewsPage from './pages/NewsPage';       // ✨ Importe a página de Notícias
 import ArticleDetail from './pages/ArticleDetail';
 import ConfirmComment from './pages/ConfirmComment';
+import DeleteComment from './pages/DeleteComment';
 import SuggestReview from './pages/SuggestReview';
 import WhereToWatch from './pages/WhereToWatch';
 
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/noticias" element={<NewsPage />} />   {/* ✨ Rota /noticias */}
           <Route path="/artigo/:slug" element={<ArticleDetail />} />
           <Route path="/confirmar-comentario" element={<ConfirmComment />} />
+          <Route path="/excluir-comentario" element={<DeleteComment />} />
           <Route path="/sugerir" element={<SuggestReview />} />
         </Routes>
       </main>
