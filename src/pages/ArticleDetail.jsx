@@ -172,9 +172,9 @@ export default function ArticleDetail() {
         <ArrowLeft size={14} /> Voltar para as publicações
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] gap-8 items-start">
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
       {/* ARTIGO PRINCIPAL */}
-      <article className="min-w-0 bg-secao-card border border-secao-border rounded-2xl p-4 sm:p-6 md:p-10 shadow-2xl">
+      <article className="order-1 min-w-0 bg-secao-card border border-secao-border rounded-2xl p-4 sm:p-6 lg:col-start-1 lg:row-start-1 lg:order-none lg:p-10 shadow-2xl">
         {article.image_url && (
           <figure className="relative -mx-4 -mt-4 sm:-mx-6 sm:-mt-6 md:-mx-10 md:-mt-10 mb-8 min-h-40 overflow-hidden rounded-t-2xl bg-slate-950 flex items-center justify-center">
             <Newspaper aria-hidden="true" className="absolute text-slate-700" size={40} />
@@ -251,7 +251,7 @@ export default function ArticleDetail() {
         )}
       </article>
 
-      <aside className="rounded-2xl border border-secao-border bg-secao-card p-5 lg:sticky lg:top-6">
+      <aside className="order-3 rounded-2xl border border-secao-border bg-secao-card p-5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:order-none lg:sticky lg:top-6">
         <h2 className="mb-5 border-b border-secao-border pb-3 text-lg font-extrabold uppercase tracking-wide text-white">
           <span className="border-l-4 border-secao-red pl-3">Mais notícias</span>
         </h2>
@@ -289,10 +289,9 @@ export default function ArticleDetail() {
           </div>
         )}
       </aside>
-      </div>
 
       {/* SEÇÃO DE COMENTÁRIOS */}
-      <section className="bg-secao-card border border-secao-border rounded-2xl p-6 md:p-8 shadow-xl">
+      <section className="order-2 min-w-0 bg-secao-card border border-secao-border rounded-2xl p-6 shadow-xl lg:col-start-1 lg:row-start-2 md:p-8 lg:order-none">
         <header className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
           <h2 className="flex items-center gap-2 text-xl font-bold text-secao-purple sm:text-2xl">
             <MessageSquare className="shrink-0" /> Opiniões da Comunidade
@@ -396,6 +395,7 @@ export default function ArticleDetail() {
           )}
         </ul>
       </section>
+      </div>
     </main>
   );
 }
