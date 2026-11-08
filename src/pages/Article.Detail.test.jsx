@@ -70,6 +70,8 @@ describe('Página ArticleDetail', () => {
     // 2. Verifica se o comentário do Tanjiro foi listado
     expect(screen.getByText(/Tanjiro/i)).toBeInTheDocument();
     expect(screen.getByText(/Filme sensacional!/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Apagar comentário/i }));
+    expect(screen.getByRole('status')).toHaveTextContent(/link de exclusão enviado/i);
   });
 
   it('deve evitar espaços extras entre os blocos de conteúdo HTML da análise', async () => {

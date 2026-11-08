@@ -18,6 +18,7 @@ export default function ArticleDetail() {
   const [commentMessage, setCommentMessage] = useState('');
   const [commentError, setCommentError] = useState('');
   const [commentSubmitting, setCommentSubmitting] = useState(false);
+  const [deleteInfoId, setDeleteInfoId] = useState(null);
   const [loadedSlug, setLoadedSlug] = useState(null);
   const [loadError, setLoadError] = useState('');
   const loading = loadedSlug !== slug;
@@ -283,6 +284,18 @@ export default function ArticleDetail() {
                   </time>
                 </header>
                 <p className="text-slate-300 text-sm leading-relaxed">{c.opinion}</p>
+                <button
+                  type="button"
+                  onClick={() => setDeleteInfoId(currentId => currentId === c.id ? null : c.id)}
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-secao-red/50 px-3 py-2 text-xs font-bold text-secao-red transition hover:border-secao-red hover:bg-secao-red/10"
+                >
+                  Apagar comentário
+                </button>
+                {deleteInfoId === c.id && (
+                  <p role="status" className="mt-2 text-xs text-slate-400">
+                    Use o link de exclusão enviado para o e-mail usado neste comentário.
+                  </p>
+                )}
               </li>
             ))
           )}
