@@ -291,8 +291,8 @@ export default function ArticleDetail() {
       </aside>
 
       {/* SEÇÃO DE COMENTÁRIOS */}
-      <section className="order-2 min-w-0 bg-secao-card border border-secao-border rounded-2xl p-6 shadow-xl lg:col-start-1 lg:row-start-2 md:p-8 lg:order-none">
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <section className="order-2 min-w-0 lg:col-start-1 lg:row-start-2 lg:order-none">
+        <header className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-secao-border bg-secao-card p-6 shadow-xl md:p-8">
           <h2 className="flex items-center gap-2 text-xl font-bold text-secao-purple sm:text-2xl">
             <MessageSquare className="shrink-0" /> Opiniões da Comunidade
           </h2>
@@ -303,7 +303,8 @@ export default function ArticleDetail() {
         </header>
 
         {/* LISTA DE COMENTÁRIOS */}
-        <ul className="mb-10 space-y-4">
+        <div className="mb-6 rounded-2xl border border-secao-border bg-secao-card p-6 shadow-xl md:p-8">
+          <ul className="space-y-4">
           {comments.length === 0 ? (
             <li className="text-slate-500 italic text-center py-6 bg-slate-950/30 rounded-xl border border-slate-900">
               Nenhum leitor opinou ainda. Seja o primeiro a deixar sua marca!
@@ -323,10 +324,12 @@ export default function ArticleDetail() {
               </li>
             ))
           )}
-        </ul>
+          </ul>
+        </div>
 
         {/* FORMULÁRIO DE ENVIO */}
-        <form onSubmit={handleCommentSubmit} className="space-y-4 rounded-xl border border-slate-800 bg-slate-950/70 p-4 sm:p-5">
+        <div className="rounded-2xl border border-secao-border bg-secao-card p-6 shadow-xl md:p-8">
+          <form onSubmit={handleCommentSubmit} className="space-y-4 rounded-xl border border-slate-800 bg-slate-950/70 p-4 sm:p-5">
           <h3 className="font-semibold text-slate-200 text-sm">
             O que você achou desta obra? Deixe sua visão abaixo:
           </h3>
@@ -393,7 +396,8 @@ export default function ArticleDetail() {
           >
             <Send size={16} /> {commentSubmitting ? 'Enviando...' : 'Enviar para confirmação'}
           </button>
-        </form>
+          </form>
+        </div>
 
       </section>
       </div>
