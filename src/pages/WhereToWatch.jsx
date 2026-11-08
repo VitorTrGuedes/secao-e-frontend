@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import { ArrowLeft, Calendar, PlayCircle, Search, Tv, X } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, PlayCircle, Search, Star, Tv, Users, X } from 'lucide-react';
 import { getApiErrorMessage } from '../utils/apiError';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
@@ -25,6 +25,8 @@ export default function WhereToWatch() {
   const [titles, setTitles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTitle, setSelectedTitle] = useState(null);
+  const [titleDetails, setTitleDetails] = useState(null);
+  const [titleDetailsLoading, setTitleDetailsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
 
@@ -56,6 +58,37 @@ export default function WhereToWatch() {
       clearTimeout(timer);
     };
   }, [searchTerm]);
+
+  useEffect(() => {
+    if (!selectedTitle) {
+      setTitleDetails(null);
+      return undefined;
+    }
+
+    const title = selectedTitle.title || selectedTitle.name;
+    if (!title) return undefined;
+
+    let active = true;
+    setTitleDetailsLoading(true);
+    setTitleDetails(null);
+    axios.get(`${API_URL}/title-details/`, { params: { title } })
+      .then((res) => {
+        if (active) setTitleDetails(res.data);
+      })
+      .catch((error) => {
+        if (active) {
+          setTitleDetails(null);
+          console.error('Erro ao carregar detalhes do título:', error);
+        }
+      })
+      .finally(() => {
+        if (active) setTitleDetailsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [selectedTitle]);
 
   const streamingNames = useMemo(() => (
     [...new Set(titles.flatMap(getProviders).map(provider => provider.name || provider.provider_name).filter(Boolean))]
@@ -129,6 +162,72 @@ export default function WhereToWatch() {
                 </p>
               )}
               {selectedTitle.overview && <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-300">{selectedTitle.overview}</p>}
+              <section aria-label="Informações do título" className="mt-6 rounded-xl border border-secao-border bg-slate-950/30 p-4">
+                {titleDetailsLoading ? (
+                  <p role="status" className="text-sm text-slate-400">Carregando informações do título...</p>
+                ) : titleDetails ? (
+                  <>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-300">
+                      {titleDetails.year && <span>{titleDetails.year}</span>}
+                      {titleDetails.runtime && (
+                        <span className="inline-flex items-center gap-1">
+                          <Clock size={14} /> {titleDetails.runtime} min
+                        </span>
+                      )}
+                      {titleDetails.genres?.length > 0 && <span>{titleDetails.genres.join(' • ')}</span>}
+                    </div>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                      <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3">
+                        <p className="text-[10px] font-black uppercase tracking-wide text-yellow-300">Nota TMDB</p>
+                        <p className="mt-1 flex items-center gap-1 text-lg font-black text-white">
+                          <Star size={16} fill="currentColor" className="text-yellow-400" />
+                          {titleDetails.vote_average ? `${Number(titleDetails.vote_average).toFixed(1)}/10` : '—'}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border border-secao-purple/30 bg-secao-purple/10 p-3">
+                        <p className="text-[10px] font-black uppercase tracking-wide text-secao-purple">Popularidade</p>
+                        <p className="mt-1 text-lg font-black text-white">
+                          {titleDetails.popularity ? Number(titleDetails.popularity).toFixed(1) : '—'}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border border-secao-border bg-secao-card p-3">
+                        <p className="text-[10px] font-black uppercase tracking-wide text-slate-400">Votos TMDB</p>
+                        <p className="mt-1 text-lg font-black text-white">
+                          {titleDetails.vote_count ? titleDetails.vote_count.toLocaleString('pt-BR') : '—'}
+                        </p>
+                      </div>
+                    </div>
+                    {(titleDetails.director || titleDetails.writers?.length > 0 || titleDetails.cast?.length > 0) && (
+                      <div className="mt-4 space-y-2 border-t border-secao-border pt-4 text-sm text-slate-300">
+                        {titleDetails.director && (
+                          <p><strong className="text-white">Direção:</strong> {titleDetails.director}</p>
+                        )}
+                        {titleDetails.writers?.length > 0 && (
+                          <p><strong className="text-white">Roteiro:</strong> {titleDetails.writers.join(', ')}</p>
+                        )}
+                        {titleDetails.cast?.length > 0 && (
+                          <p className="flex items-start gap-2">
+                            <Users size={16} className="mt-0.5 shrink-0 text-secao-purple" />
+                            <span><strong className="text-white">Elenco:</strong> {titleDetails.cast.join(' • ')}</span>
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    {titleDetails.tmdb_url && (
+                      <a
+                        href={titleDetails.tmdb_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-4 inline-flex text-xs font-semibold text-secao-purple hover:text-violet-300"
+                      >
+                        Ver ficha completa no TMDB
+                      </a>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-xs text-slate-500">Detalhes adicionais indisponíveis para este título.</p>
+                )}
+              </section>
               <div className="mt-6 flex flex-wrap gap-2">
                 {getProviders(selectedTitle).map(provider => (
                   <span key={`${provider.id || provider.name}-${provider.type || 'streaming'}`} className="rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-xs font-semibold text-slate-200">

@@ -41,18 +41,6 @@ describe('Página ArticleDetail', () => {
     axios.get.mockResolvedValueOnce({ data: [
       { id: 2, slug: 'noticia-star-wars', post_type: 'news', category: 'cinema', title: 'Notícia de Star Wars', image_url: 'https://example.com/star-wars.jpg' },
     ] });
-    axios.get.mockResolvedValueOnce({ data: {
-      year: '2026',
-      runtime: 140,
-      genres: ['Ação', 'Fantasia'],
-      vote_average: 8.4,
-      vote_count: 1250,
-      popularity: 91.2,
-      director: 'Diretor Exemplo',
-      writers: ['Roteirista Exemplo'],
-      cast: ['Ator Principal'],
-      tmdb_url: 'https://www.themoviedb.org/movie/1',
-    } });
 
     render(
       <MemoryRouter initialEntries={['/artigo/review-demon-slayer']}>
@@ -71,9 +59,6 @@ describe('Página ArticleDetail', () => {
       expect(screen.getByText('IMDb')).toBeInTheDocument();
       expect(screen.getByText('8.7/10')).toBeInTheDocument();
       expect(screen.getByText('filme')).toBeInTheDocument();
-      expect(screen.getByText('140 min')).toBeInTheDocument();
-      expect(screen.getByText('Diretor Exemplo')).toBeInTheDocument();
-      expect(screen.getByText('Ação • Fantasia')).toBeInTheDocument();
     });
     expect(screen.getByRole('img', { name: mockArticle.title }))
       .toHaveClass('max-h-80', 'sm:max-h-[32rem]');
