@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Star, Calendar, Search, X, ArrowRight, Newspaper, Sparkles } from 'lucide-react';
+import { Star, Calendar, Search, X, ArrowRight, Newspaper, Sparkles, Tv } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -18,6 +18,8 @@ export default function Home() {
 
   const [filter, setFilter] = useState('todos');
   const [searchTerm, setSearchTerm] = useState('');
+  const [streaming, setStreaming] = useState(null);
+  const [streamingLoading, setStreamingLoading] = useState(false);
 
   useEffect(() => {
     axios.get(`${API_URL}/articles/`, { params: { _: Date.now() } })
@@ -36,6 +38,35 @@ export default function Home() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    const title = searchTerm.trim();
+    if (title.length < 2) {
+      setStreaming(null);
+      setStreamingLoading(false);
+      return undefined;
+    }
+
+    let active = true;
+    const timer = setTimeout(() => {
+      setStreamingLoading(true);
+      axios.get(`${API_URL}/streaming/`, { params: { title } })
+        .then(res => {
+          if (active) setStreaming(res.data);
+        })
+        .catch(() => {
+          if (active) setStreaming(null);
+        })
+        .finally(() => {
+          if (active) setStreamingLoading(false);
+        });
+    }, 450);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [searchTerm]);
 
   // 🔍 LÓGICA DE FILTRO COMBINADO (Categoria + Texto de Busca)
   const safeArticles = Array.isArray(articles) ? articles : [];
@@ -124,6 +155,34 @@ export default function Home() {
           </nav>
 
         </section>
+
+        {searchTerm.trim().length >= 2 && (
+          <section className="mx-auto mt-5 max-w-2xl rounded-xl border border-secao-border bg-secao-card p-4 text-left">
+            <h2 className="flex items-center gap-2 text-sm font-bold text-white">
+              <Tv size={16} className="text-secao-purple" /> Onde assistir
+            </h2>
+            {streamingLoading ? (
+              <p role="status" className="mt-3 text-xs text-slate-400">Consultando serviços de streaming...</p>
+            ) : streaming?.providers?.length ? (
+              <div className="mt-3 flex flex-wrap gap-3">
+                {streaming.providers.map(provider => (
+                  <div key={`${provider.id}-${provider.type}`} className="flex items-center gap-2 rounded-lg bg-slate-950/70 px-3 py-2 text-xs text-slate-200">
+                    {provider.logo_path && (
+                      <img
+                        src={`https://image.tmdb.org/t/p/w45${provider.logo_path}`}
+                        alt=""
+                        className="h-6 w-6 rounded object-cover"
+                      />
+                    )}
+                    <span>{provider.name}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-slate-400">Nenhum serviço encontrado para este filme no Brasil.</p>
+            )}
+          </section>
+        )}
 
         {/* CONTADOR DE RESULTADOS */}
         {searchTerm && (
