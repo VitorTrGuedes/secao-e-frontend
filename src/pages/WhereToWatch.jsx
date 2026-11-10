@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ArrowLeft, Calendar, Clock, PlayCircle, Search, Star, Tv, Users, X } from 'lucide-react';
 import { getApiErrorMessage } from '../utils/apiError';
@@ -32,10 +32,12 @@ export default function WhereToWatch() {
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
     const timer = setTimeout(() => {
       setLoading(true);
       axios.get(`${API_URL}/streaming/`, {
-        params: searchTerm.trim() ? { title: searchTerm.trim() } : {}
+        params: searchTerm.trim() ? { title: searchTerm.trim() } : {},
+        signal: controller.signal,
       })
         .then((res) => {
           if (!active) return;
@@ -51,11 +53,12 @@ export default function WhereToWatch() {
         .finally(() => {
           if (active) setLoading(false);
         });
-    }, searchTerm.trim() ? 350 : 0);
+    }, searchTerm.trim() ? 150 : 0);
 
     return () => {
       active = false;
       clearTimeout(timer);
+      controller.abort();
     };
   }, [searchTerm]);
 
@@ -89,10 +92,6 @@ export default function WhereToWatch() {
       active = false;
     };
   }, [selectedTitle]);
-
-  const streamingNames = useMemo(() => (
-    [...new Set(titles.flatMap(getProviders).map(provider => provider.name || provider.provider_name).filter(Boolean))].slice(0, 5)
-  ), [titles]);
 
   const clearSearch = () => {
     setSearchTerm('');
@@ -132,15 +131,6 @@ export default function WhereToWatch() {
           )}
         </div>
 
-        {streamingNames.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {streamingNames.map(name => (
-              <span key={name} className="rounded-full border border-secao-border bg-secao-card px-3 py-1 text-xs font-semibold text-slate-300">
-                {name}
-              </span>
-            ))}
-          </div>
-        )}
       </header>
 
       {selectedTitle ? (
