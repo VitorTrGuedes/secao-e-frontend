@@ -91,7 +91,7 @@ export default function WhereToWatch() {
   }, [selectedTitle]);
 
   const streamingNames = useMemo(() => (
-    [...new Set(titles.flatMap(getProviders).map(provider => provider.name || provider.provider_name).filter(Boolean))]
+    [...new Set(titles.flatMap(getProviders).map(provider => provider.name || provider.provider_name).filter(Boolean))].slice(0, 5)
   ), [titles]);
 
   const clearSearch = () => {

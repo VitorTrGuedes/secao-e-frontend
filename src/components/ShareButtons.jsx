@@ -31,26 +31,26 @@ export default function ShareButtons({ title }) {
 
   return (
     <div className="mt-5 flex flex-wrap items-center gap-2" aria-label="Compartilhar publicação">
-      <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Compartilhar:</span>
+      <span className="basis-full text-xs font-semibold uppercase tracking-wide text-slate-500 sm:basis-auto sm:mr-1">Compartilhar:</span>
       <button
         type="button"
         onClick={shareOnInstagram}
         title="Copiar link e abrir o Instagram"
-        className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-pink-500/40 bg-pink-500/10 px-3 py-2 text-xs font-bold text-pink-300 transition hover:border-pink-400 hover:bg-pink-500/20"
+        className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-pink-500/40 bg-pink-500/10 px-2 py-2 text-xs font-bold text-pink-300 transition hover:border-pink-400 hover:bg-pink-500/20 sm:flex-none sm:px-3"
       >
         <Camera size={16} aria-hidden="true" /> Instagram
       </button>
       <button
         type="button"
         onClick={() => openShareWindow(`https://wa.me/?text=${encodedText}`)}
-        className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-bold text-emerald-300 transition hover:border-emerald-400 hover:bg-emerald-500/20"
+        className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2 py-2 text-xs font-bold text-emerald-300 transition hover:border-emerald-400 hover:bg-emerald-500/20 sm:flex-none sm:px-3"
       >
         <MessageCircle size={16} aria-hidden="true" /> WhatsApp
       </button>
       <button
         type="button"
         onClick={() => openShareWindow(`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodeURIComponent(url)}`)}
-        className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-xs font-bold text-sky-300 transition hover:border-sky-400 hover:bg-sky-500/20"
+        className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-sky-500/40 bg-sky-500/10 px-2 py-2 text-xs font-bold text-sky-300 transition hover:border-sky-400 hover:bg-sky-500/20 sm:flex-none sm:px-3"
       >
         <Send size={16} aria-hidden="true" /> Twitter
       </button>
