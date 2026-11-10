@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Star, Send, MessageSquare, User, Calendar, ArrowLeft, ExternalLink, Newspaper } from 'lucide-react';
 import { getApiErrorMessage } from '../utils/apiError';
 import { formatImdbRating, formatRottenTomatoesRating, getReviewRatings } from '../utils/reviewRatings';
+import ShareButtons from '../components/ShareButtons';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -237,6 +238,7 @@ export default function ArticleDetail() {
           <h1 className="break-words text-2xl font-extrabold leading-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
             {article.title}
           </h1>
+          <ShareButtons title={article.title} />
         </header>
 
         {hasFormattedContent ? (
